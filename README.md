@@ -1,2 +1,2 @@
 # shithead
-A lab for experimenting with the crad came shithead
+A lab for experimenting with the card game shithead.
