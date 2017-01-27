@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body, div, p, pre, textarea, input {
+				margin: 5px;
+				font-size: 100%;
+			}
+		
+			#game { 
+			  display: flex;
+			  flex-direction: row;
+			  flex-wrap: nowrap;
+			  justify-content: space-around;
+			}
+			
+			#players { 
+			  display: flex;
+			  flex-direction: row;
+			  flex-wrap: nowrap;
+			  justify-content: space-around;
+			}	
+			
+			.script {
+				font-size: 80%;
+				width: 80%;
+				height: 100pt;
+			}
+			
+			.pile {
+				width: 30%;
+				border: 1pt dashed;
+			}			
+
+			.player {
+				width: 30%;
+				border: 1pt solid;
+			}
+			
+			.playerDetails {
+			  display: flex;
+			  flex-direction: row;
+			  flex-wrap: nowrap;
+			  justify-content: space-around;
+			}
+
+			.cardSet {
+				border: 1pt dotted;
+			}
+			
+			.glyph {
+				border: 0pt solid;
+				font-size: 600%;
+			}
+			.suitGlyph {
+				font-size: 200%;
+			}			
+
+			
+			.card {
+				border: 1pt solid;
+				border-radius: 5px;
+			}
+			
+			.topDiscard {
+				border: 2pt solid green;
+			}			
+
+			.selectable_1 {
+				border: 2pt dashed #CF0000;
+			}
+			.selectable_2 {
+				border: 2pt dotted #AF0000;
+			}			
+			.selectable_3 {
+				border: 2pt dotted #8F0000;
+			}			
+			.selectable_4 {
+				border: 2pt dotted;
+			}			
+			.selectable_5 {
+				border: 2pt dotted #4F0000;
+			}
+			.selectable_6 {
+				border: 2pt dotted #2F0000;
+			}
+			.selectable_7 {
+				border: 2pt dotted #0F0000;
+			}
+			.selectable_8 {
+				border: 2pt dotted;
+			}
+			.selectable_9 {
+				border: 2pt dotted;
+			}
+			.selectable_10 {
+				border: 2pt dotted;
+			}
+
+			.selected {
+				border: 2pt solid blue;
+			}					
+			
+			.nextPlayer {
+				border: 5pt solid green;
+			}
+		</style>		
+		<script src="card.js"></script>
+		<script src="player.js"></script>
+		<script src="shithead.js"></script>
+		<script src="shithead-strategy.js"></script>
+		<script>
+			var game = null;
+			var games = [];
+		
+		
+			var sh = {
+				
+				view: {
+
+					isGlyph: false,
+					isSuitGlyph: true,
+					
+					toggleElementAttributeValue: function( element, attribute, value ) {
+					
+						var valueSet = element.getAttribute( attribute );
+						
+						if ( !valueSet ) {
+							valueSet = value;
+						} else {
+							var p = valueSet.indexOf( value )
+
+							if ( p < 0 ) {
+								valueSet += " " + value;
+							} else {
+								valueSet = valueSet.replace( value, "" );
+							}
+						}
+
+						element.setAttribute( attribute, valueSet.trim() );				
+					},
+					
+					
+					cardStyle: function( card ) {
+						return "card" + 
+							( this.isGlyph ? " glyph" 
+							: this.isSuitGlyph ? " suitGlyph" 
+							: "" ) + 
+							// note that ( card.selectgroup === 0 ) will never be selectable (because card.selectgroup is false).
+							( ( card.selectable && card.selectgroup ) ? " selectable_" + card.selectgroup						
+							: card.topDiscard ? " topDiscard"
+							: "" ) +
+							( card.selected ? " selected" 
+							: "" );
+					},
+				
+					cardView: function( card ){ 
+						return this.isGlyph ? card.glyph
+							: this.isSuitGlyph ? ( card.valueKey() + card.suitGlyph )
+								: card; 
+					},				
+				
+					formatCard: function( card ){
+					
+						return !card ? "empty" 
+							: ( card.selectable && card.selectgroup ) 
+								? (" <span id=\""+ card.id() +"\" class=\"" + this.cardStyle( card ) + "\" onclick=\"sh.controller.selectCard( this )\">" + this.cardView( card ) + "</span>" ) 
+							: (" <span id=\""+ card.id() +"\" class=\"" + this.cardStyle( card ) + "\">" + this.cardView( card ) + "</span>" ) ;
+					},
+					
+					formatBlindCard: function( card ){
+						return card ? (" <span class=\"card" + ( this.isGlyph ? " glyph" : this.isSuitGlyph ? " suitGlyph" : "" ) + "\">" + this.cardView( card ) + "</span>") : "empty";
+					},				
+					
+					formatCardSet: function( cardSet, id, name, blind ){
+
+						if ( !cardSet )
+						{
+							return "(empty)";
+						}
+						
+						var cardSetDiv = '<div id="' + id + '" class="cardSet">';
+						
+						cardSetDiv += '<p>' + name + ': (' + cardSet.length + ')</p>';
+
+						var view = this;
+
+						cardSet.forEach( function( card ){
+							cardSetDiv += blind 
+								? view.formatBlindCard( card ) 
+								: view.formatCard( card );
+						});
+						
+						cardSetDiv += '</div>'; 
+						
+						return cardSetDiv;
+					},				
+				
+					formatPlayer: function( player ){
+					
+						if ( !player )
+						{
+							return "(empty)";
+						}
+						
+						var isNextGo = ( game.nextPlayer === player );
+					
+					
+						var playerDiv = '<div id="' + player.name + '" class="player' + ( isNextGo ? ' nextPlayer' : '' ) + '">';
+
+						playerDiv += '<div class="playerDetails">';
+						playerDiv += '<div>' + player.name + ( isNextGo ? ' (next)' : '' ) + '</div>';
+						playerDiv += '<div>Auto <input type="checkbox" value="auto" ' + ( player.autoPlay ? 'checked="checked"' : '' ) + '" onclick="sh.setPlayerAuto( \'' + player.name + '\', this.checked )"/></div>';
+						playerDiv += '</div>';
+
+						if ( player.finished )
+						{
+							playerDiv += '<div>Finished at step: ' + player.finishedStepCount + '</div>';
+						}
+						
+						playerDiv += this.formatCardSet( player.hand, player.name + ".hand", "Hand" );
+						playerDiv += this.formatCardSet( player.faceup, player.name + ".faceup", "Face-up" );
+						playerDiv += this.formatCardSet( player.blind, player.name + ".blind", "Blind", true );
+					
+						playerDiv += '</div>'; 
+						
+						return playerDiv;
+					},				
+
+					
+					refreshGame: function( ){
+						
+						var update = '<div id="stack" class="pile"><p>Stack size: ' + game.stack.length + '</p>';
+						/*if ( game.stack.length > 0 )
+						{
+							update += '<span class="card' + ( this.isGlyph ? ' glyph' : this.isSuitGlyph ? " suitGlyph" : '' ) + '">' + String.fromCodePoint( parseInt( "1F0A0", 16 ) ) + '</div>';
+						}*/
+						update += '</div>';
+
+						update += '<div id="discard" class="pile">';
+						update += this.formatCardSet( game.discard, "discard", "Discard" );
+						update += '</div>';
+
+						
+						update += '<div id="trash" class="pile"><p>Trash size: ' + game.trash.length + '</p></div>';
+						
+						
+						var gameDiv = document.getElementById( 'game' );
+						
+						gameDiv.innerHTML = update;
+					},				
+					
+					refreshPlayers: function( ){
+						
+						var update = '';
+
+						if ( game && game.players ) {
+							var view = this;
+							game.players.forEach( function( player ){
+								update += view.formatPlayer( player );
+							});
+						}
+
+						document.getElementById( 'players' ).innerHTML = update;
+					},
+					
+					appendPlayLog: function( ){
+						if ( game ) {
+							var playLog = document.getElementById( 'game-play-log' );
+							
+							playLog.innerHTML = game.lastPlay + '<hr/>' + playLog.innerHTML;
+						}
+					},
+					
+					clearPlayLog: function( ){
+						document.getElementById( 'game-play-log' ).innerHTML = '';
+					},		
+
+					
+					getPlayLog: function( ){
+						return document.getElementById( 'game-play-log' ).innerHTML;
+					},						
+					
+					update: function(){
+						this.refreshGame();
+						this.refreshPlayers();						
+						this.appendPlayLog();
+					}
+				},
+				
+				
+				
+				controller: {
+				
+					setPlayerAuto: function( name, autoPlay ){
+						var player = players.first( function( player ){ return player.name === name; });
+						
+						if ( player != null )
+						{
+							player.autoPlay = autoPlay;
+
+							log.write( player.name + " autoPlay " + player.autoPlay );
+						}
+					},
+					
+					selectCard: function( element ) {
+
+						// toggle the element style
+						//sh.view.toggleElementAttributeValue( element, "class", "selected" );
+
+						var cardId = element.getAttribute( "id" );
+						
+						// TODO: hmmm, seems cludgy
+						var value = Card.prototype.keyValue( cardId.substring( 0, cardId.indexOf( "-" ) ) );
+						var suit = cardId.substring( 1 + cardId.indexOf( "-" ) );
+						
+						
+						if ( game.cardChoices )
+						{
+							// clear any old selected values on other card sets in choices
+							game.cardChoices.forEach( function( cs ){
+								if ( cs[0].value != value ) { 
+									cs.forEach( function(c){ delete c.selected; });
+								}
+							});
+						
+							var cardSet = game.cardChoices.first( function( cs ){ return cs[0].value == value; } );
+
+							if ( cardSet )
+							{
+								var allOff = true;
+								cardSet.forEach( function( card ) {
+									if ( card.selected ) {
+										allOff = false;
+									}
+									if ( card.suit == suit ) {
+										if ( card.selected ) {
+											delete card.selected;
+										} else {
+											card.selected = true;
+										}
+									}
+								} );
+								
+								if ( allOff )
+								{
+									cardSet.forEach( function( card ) { card.selected = true; } );
+								}
+							}
+							else
+							{
+								console.log( "no card set found: value=[" + value + "], suit=[" + suit + "]." );
+							}
+							
+							sh.view.refreshPlayers();
+						}
+					
+					},
+					
+					
+					
+					play: function(){
+						if ( game ) {
+							try { 
+								game.play(); 
+							} finally { 
+								sh.view.update();
+							}
+						}
+					},
+					
+					
+					start: function(){
+						if ( game ) {
+							try { 
+								game.start();
+							} finally { 
+								sh.view.update();
+							}
+						}
+					},	
+
+					runDelayMillis: 50,
+					
+					run: function( running ){
+					
+						try {
+						
+							if ( !running || !game ) {
+								return;
+							}
+	
+							game.isRunning = true;
+
+							if ( !game.isStarted ) {
+
+								game.start();
+								sh.view.update();
+							}
+							
+							game.play();
+							sh.view.update();
+							
+							var controller = this;
+							
+							setTimeout( function () { controller.run( game.isRunning ); }, this.runDelayMillis );
+							
+						} catch ( e ) {
+						
+							game.isRunning = false;
+							
+							log.write( "Game stopped: " + e );
+						}
+					},	
+					
+					stop: function( ) {
+						game.isRunning = false;
+					},
+					
+					runDelay: function( value ){
+						var rdm = Number( value );
+						if ( rdm === rdm )
+						{
+							this.runDelayMillis = rdm;
+							
+							log.write( "set rundelay millis: " + this.runDelayMillis );
+						}
+					},
+					
+					createGamePlayers: function( playerDefinitions ){
+
+						var gamePlayers = [];
+						
+						playerDefinitions.forEach( function( pd ){ 
+
+							var gamePlayer = new Player( pd.name );
+							
+							// TODO: customize the game player
+							if ( pd.prepareCards )
+							{
+								gamePlayer.prepareCards = pd.prepareCards;
+							}
+
+							
+							gamePlayers.push( gamePlayer );
+						} );
+						
+						return gamePlayers;
+					
+					},
+										
+					newGame: function(){					
+						try {
+							sh.view.clearPlayLog();
+							
+							game = new Game( 
+								this.createGamePlayers( 
+									eval( 
+										document.getElementById( 'playerDefinitions' ).value ) ) );
+
+							game.onStart = function( game ) {
+
+								// setup stats
+								
+							};										
+
+										
+							game.onStep = function( game ) {
+							
+								// collect stats
+								// maybe refresh something
+								
+							};										
+										
+							game.onFinish = function( game ) {
+							
+
+
+								game.playLog = sh.view.getPlayLog();
+								games.push( game );
+								
+								sh.view.update();
+								
+							};
+										
+							game.start();
+							
+							sh.view.update( );
+							
+						} catch ( e ) {
+							alert( "Error creating game: " + e );
+							
+							throw e;
+						}
+					}
+				}
+			};		
+			
+
+			function showHide( id ) {
+				var c = document.getElementById( id );
+				if ( c ) {
+					var s = c.style.display;
+					if ( s == '' ) {
+						c.style.display  =  'none';
+					} else {
+						c.style.display  =  '';
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div style="float:right">
+			<input type="button" value="Deal" onclick="sh.controller.newGame();"/>
+			<input type="button" value="Run" onclick="sh.controller.run( true );"/>
+			<input type="button" value="Stop" onclick="sh.controller.stop();"/>
+			<input type="text" value="50" size="10" onchange="sh.controller.runDelay( this.value )"/>
+			|
+			<input type="button" value="Step" onclick="sh.controller.play();"/>
+		</div>
+		<p>Shithead</p>
+		<div id="players-area-closed">
+			<p>
+				Players: 
+				[<a onclick="showHide( 'players-area-open' ); showHide( 'players-area-closed' );">open</a>]
+				[<a onclick="sh.view.isGlyph = true;sh.view.update();">glyph</a>]
+				[<a onclick="sh.view.isGlyph = false;sh.view.isSuitGlyph = true;sh.view.update();">suit</a>]
+			</p>
+		</div>
+		<div id="players-area-open" style="display: none;">
+			<p>Players: [<a onclick="showHide( 'players-area-open' ); showHide( 'players-area-closed' );">close</a>]</p>
+			<textarea id="playerDefinitions" class="script">[
+  { 
+    "name": "alberto"
+  },
+  { 
+    "name": "belinda",
+    "prepareCards": function() { Strategy.prepareCards( this.hand, this.faceup, Strategy.sort.byValue ); }
+  },  
+  { 
+    "name": "caprice",
+    "prepareCards": function() { Strategy.prepareCards( this.hand, this.faceup, Strategy.sort.byValueAceBeatsTwo ); }
+  }
+]</textarea>
+		
+		</div>
+		<hr/>
+
+		<div id="game" class="game">(no game)</div>
+		<div id="players" class="players">(no players)</div>
+		<hr/>
+		<pre id="game-play-log"></pre>
+	</body>
+</html>
