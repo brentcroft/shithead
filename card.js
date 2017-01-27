@@ -31,69 +31,67 @@ Card.prototype.clean = function() {
 };
 
 var Cards = {
-    newDeck: function() {
-        return {
-            Spades: { 
-                Two: new Card( 2 ),
-                Three: new Card( 3 ),
-                Four: new Card( 4 ),
-                Five: new Card( 5 ),
-                Six: new Card( 6 ),
-                Seven: new Card( 7 ),
-                Eight: new Card( 8 ),
-                Nine: new Card( 9 ),
-                Ten: new Card( 10 ),
-                Jack: new Card( 11 ),
-                Queen: new Card( 12 ),
-                King: new Card( 13 ),
-                Ace:  new Card( 14 )
-            },
-            Hearts: { 
-                Two: new Card( 2 ),
-                Three: new Card( 3 ),
-                Four: new Card( 4 ),
-                Five: new Card( 5 ),
-                Six: new Card( 6 ),
-                Seven: new Card( 7 ),
-                Eight: new Card( 8 ),
-                Nine: new Card( 9 ),
-                Ten: new Card( 10 ),
-                Jack: new Card( 11 ),
-                Queen: new Card( 12 ),
-                King: new Card( 13 ),
-                Ace:  new Card( 14 )
-            }, 
-            Clubs: { 
-                Two: new Card( 2 ),
-                Three: new Card( 3 ),
-                Four: new Card( 4 ),
-                Five: new Card( 5 ),
-                Six: new Card( 6 ),
-                Seven: new Card( 7 ),
-                Eight: new Card( 8 ),
-                Nine: new Card( 9 ),
-                Ten: new Card( 10 ),
-                Jack: new Card( 11 ),
-                Queen: new Card( 12 ),
-                King: new Card( 13 ),
-                Ace:  new Card( 14 )
-            },
-            Diamonds: { 
-                Two: new Card( 2 ),
-                Three: new Card( 3 ),
-                Four: new Card( 4 ),
-                Five: new Card( 5 ),
-                Six: new Card( 6 ),
-                Seven: new Card( 7 ),
-                Eight: new Card( 8 ),
-                Nine: new Card( 9 ),
-                Ten: new Card( 10 ),
-                Jack: new Card( 11 ),
-                Queen: new Card( 12 ),
-                King: new Card( 13 ),
-                Ace:  new Card( 14 )
-            }
-        };
+    deck: {
+        Spades: { 
+            Two: new Card( 2 ),
+            Three: new Card( 3 ),
+            Four: new Card( 4 ),
+            Five: new Card( 5 ),
+            Six: new Card( 6 ),
+            Seven: new Card( 7 ),
+            Eight: new Card( 8 ),
+            Nine: new Card( 9 ),
+            Ten: new Card( 10 ),
+            Jack: new Card( 11 ),
+            Queen: new Card( 12 ),
+            King: new Card( 13 ),
+            Ace:  new Card( 14 )
+        },
+        Hearts: { 
+            Two: new Card( 2 ),
+            Three: new Card( 3 ),
+            Four: new Card( 4 ),
+            Five: new Card( 5 ),
+            Six: new Card( 6 ),
+            Seven: new Card( 7 ),
+            Eight: new Card( 8 ),
+            Nine: new Card( 9 ),
+            Ten: new Card( 10 ),
+            Jack: new Card( 11 ),
+            Queen: new Card( 12 ),
+            King: new Card( 13 ),
+            Ace:  new Card( 14 )
+        }, 
+        Clubs: { 
+            Two: new Card( 2 ),
+            Three: new Card( 3 ),
+            Four: new Card( 4 ),
+            Five: new Card( 5 ),
+            Six: new Card( 6 ),
+            Seven: new Card( 7 ),
+            Eight: new Card( 8 ),
+            Nine: new Card( 9 ),
+            Ten: new Card( 10 ),
+            Jack: new Card( 11 ),
+            Queen: new Card( 12 ),
+            King: new Card( 13 ),
+            Ace:  new Card( 14 )
+        },
+        Diamonds: { 
+            Two: new Card( 2 ),
+            Three: new Card( 3 ),
+            Four: new Card( 4 ),
+            Five: new Card( 5 ),
+            Six: new Card( 6 ),
+            Seven: new Card( 7 ),
+            Eight: new Card( 8 ),
+            Nine: new Card( 9 ),
+            Ten: new Card( 10 ),
+            Jack: new Card( 11 ),
+            Queen: new Card( 12 ),
+            King: new Card( 13 ),
+            Ace:  new Card( 14 )
+        }
     },
     
            
@@ -119,13 +117,13 @@ var Cards = {
     },
            
             
-    shuffle: function( cards )
+    shuffle: function( )
     {
         var hands = [];
         
-        for ( var s in cards )
+        for ( var s in this.deck )
         {
-            var suit = cards[ s ];
+            var suit = this.deck[ s ];
             
             var suitGlyph = "";
             

@@ -24,7 +24,8 @@ Player.prototype.isFinished = function( ){
 // make any swaps between this.hand and this.faceup
 // lowest cards in hand
 Player.prototype.prepareCards = function( bestInHand ){
-
+    // set true if you want to have another look at other players choices
+    //this.notPrepared = false;
 };
 
 Player.prototype.selectCards = function( topDiscard, cardsetChoices ){

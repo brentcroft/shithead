@@ -78,12 +78,20 @@ JSLog.prototype.capture = function() {
 var log = new JSLog();
 
 
-
+function Stats()
+{
+    this.choices = {
+            freq: 0,
+            count: 0,
+            sum: 0
+        };
+    this.winners = [];
+}
 
 
 function Game( players, cards )
 {
-    this.cards = Cards.newDeck();
+    this.cards = cards;
     
     this.stack = [];
     this.discard = [];
@@ -93,14 +101,9 @@ function Game( players, cards )
     this.stepCount = 0;
     this.cardChoices = null;
     
-    this.stats = {
-        choices: {
-            freq: 0,
-            count: 0,
-            sum: 0
-        },
-        winners : []
-    };
+    this.stats = new Stats();
+    
+    this.state = "new";
 }
 
 Game.prototype.toString = function( ){
@@ -164,6 +167,13 @@ Game.prototype.findFirstPlayer = function( ) {
         return null;
     };
 Game.prototype.deal = function( ) {
+    
+        this.players.forEach( function( player ) {
+            player.blind = [];
+            player.faceup = [];
+            player.hand = [];
+        });
+            
         // deal blind cards
         for ( var i = 1; i <= 3; i++ ) {
             this.players.forEach( function( player ) {
@@ -295,53 +305,80 @@ Game.prototype.isFinished = function( ) {
         this.players.forEach( function( player ){ numFinished += ( player.isFinished() ? 1 : 0 ); });
         return numFinished >= ( this.players.length - 1);
     };
+
+Game.prototype.init = function( ) {
     
+    this.stepCount = 0;
+    this.stats = new Stats();
+
+    // while the players are linked, they can't be stringified
+    this.linkPlayers();
+
+    // clean the cards
+    this.cards.forEach( function( card ) { card.clean(); });
+
+    // cloning the cards array
+    this.stack = this.cards.slice( 0 );
+    this.discard = [];
+    this.trash = [];
     
-Game.prototype.start = function( ) {
+    log.write( "cards are dealt." ); 
     
-        log.start();
+    this.deal();
+    
+    this.state = "prepare";
+};
 
-        try {
-            this.linkPlayers();
-
-            this.stack = Cards.shuffle( this.cards );
-            
-            this.stack.forEach( function( card ) { card.clean(); });
-            
-            this.deal();
-
-            
-            this.players.forEach( function( p ){ p.prepareCards( ) } );
-
-            
-            var topCard = this.topDiscard();
-            if ( topCard ) {
-                topCard.topDiscard = true;
-            }
-            
-            
-            this.nextPlayer = this.findFirstPlayer( );   
-
-            // set cardChoices, and selectable on next player choices
-            if ( this.nextPlayer )
+Game.prototype.prepare = function( ) {
+    // multi steps
+    
+    for ( var i = 0; i < 3; i++ )
+    {
+        var notPrepared = false;
+        
+        this.players.forEach( function( p ){ 
+            p.prepareCards( );
+            if( p.notPrepared )
             {
-                this.cardChoices = this.playerChoices( this.nextPlayer );
-                this.setCardsSelectable( true, this.cardChoices );
-                this.setCardsSelected( true, this.nextPlayer.makeChoice( this.cardChoices ) );
-            }        
-            
-            this.isStarted = true;
-            this.firstGo = true;
-
-            this.onStart( this );
-            
-            log.write( "cards are shuffled, dealt and prepared, and the first player is identified" ); 
-            
-        } finally {
-            this.lastPlay = log.capture();        
+                notPrepared = true;
+            }
+        } );    
+        if ( !notPrepared )
+        {
+            this.state = "identifyFirstPlayer";    
+            return;
         }
-    };
+    }
     
+    log.write( "not all players prepared after 3 rounds." ); 
+
+    this.state = "identifyFirstPlayer";    
+};
+
+
+Game.prototype.identifyFirstPlayer = function( ) {
+
+    this.nextPlayer = this.findFirstPlayer( ); 
+    
+    // set cardChoices, and selectable on next player choices
+    if ( this.nextPlayer )
+    {
+        this.cardChoices = this.playerChoices( this.nextPlayer );
+        this.setCardsSelectable( true, this.cardChoices );
+        this.setCardsSelected( true, this.nextPlayer.makeChoice( this.cardChoices ) );
+    }        
+    
+    this.isStarted = true;
+    this.firstGo = true;
+
+    this.onStart( this );
+    
+    log.write( "first player is identified" );     
+    
+    this.state = "play";
+};
+
+
     
 Game.prototype.play = function( ){
         
@@ -355,313 +392,356 @@ Game.prototype.play = function( ){
             throw "Game is finished.";
         }        
 
-        log.start(); 
 
-        try {
 
-            this.stepCount++;
+        this.stepCount++;
+        
+        var topCard = this.topDiscard();        
+        if ( topCard ) {
+            topCard.topDiscard = true;
+        }
+        
+        
+        var player = this.nextPlayer;
+        
+        if ( player.isFinished() )
+        {
+            log.write( player.name + " has finished" );   
             
-            var topCard = this.topDiscard();        
-            if ( topCard ) {
-                topCard.topDiscard = true;
-            }
-            
-            
-            var player = this.nextPlayer;
-            
-            if ( player.isFinished() )
-            {
-                log.write( player.name + " has finished" );   
-                
-                player = this.players[ player.nextPlayer ];
-            }
-            
+            player = this.players[ player.nextPlayer ];
+        }
+        
 
-            
-            log.write( "Step [" + this.stepCount + "]" );  
-            log.write( "Top [" + topCard + "]" );  
+        
+        log.write( "Step [" + this.stepCount + "]" );  
+        log.write( "Top [" + topCard + "]" );  
 
-            if ( player.hand.length > 0 )
-            {
-                log.write( player.name + " in hand [" + player.hand + "]" );        
-            }
-            else if ( player.faceup.length > 0 )
-            {
-                log.write( player.name + " in faceup [" + player.faceup + "]" );        
-            }
-            else 
-            {
-                log.write( player.name + " blind" );        
-            }
+        if ( player.hand.length > 0 )
+        {
+            log.write( player.name + " in hand [" + player.hand + "]" );        
+        }
+        else if ( player.faceup.length > 0 )
+        {
+            log.write( player.name + " in faceup [" + player.faceup + "]" );        
+        }
+        else 
+        {
+            log.write( player.name + " blind" );        
+        }
+        
+        
+        
+        // TODO: 
+        var card = null;
+        
+        // don't expect to update card choices, but just in case 
+        this.cardChoices = this.cardChoices ? this.cardChoices : this.playerChoices( player );
+        
+        // collect game stats
+        if ( this.cardChoices && 
+        (   ( this.cardChoices.length > 1) 
+            || (this.cardChoices.length == 1 && this.cardChoices[ 0 ].length > 1 )))
+        {
+            var choices = this.stats.choices;
             
-            
-            
-            // TODO: 
-            var card = null;
-            
-            // don't expect to update card choices, but just in case 
-            this.cardChoices = this.cardChoices ? this.cardChoices : this.playerChoices( player );
-            
-            // collect game stats
-            if ( this.cardChoices && 
-            (   ( this.cardChoices.length > 1) 
-                || (this.cardChoices.length == 1 && this.cardChoices[ 0 ].length > 1 )))
-            {
-                var choices = this.stats.choices;
-                
-                choices.freq ++;
-                choices.count += (this.cardChoices.length - 1);
+            choices.freq ++;
+            choices.count += (this.cardChoices.length - 1);
 
-                this.cardChoices.forEach( function( cardSet ){
-                    choices.sum += ( cardSet.length - 1);
-                });
-            }
+            this.cardChoices.forEach( function( cardSet ){
+                choices.sum += ( cardSet.length - 1);
+            });
+        }
+        
+        
+        if ( player.isBlind() ) {
+            
+            // random pick
+            //card = [ player.blind[ Math.floor( Math.random() * player.blind.length ) ] ];
+            card = [ player.blind[ 0 ] ];
+            
+        } else if ( this.cardChoices && this.cardChoices.length > 0 ) {
             
             
-            if ( player.isBlind() ) {
-                
-                // random pick
-                card = [ player.blind[ Math.floor( Math.random() * player.blind.length ) ] ];
-                
-            } else if ( this.cardChoices && this.cardChoices.length > 0 ) {
-                
-                
-                // player may have already made their choice
-                // indicated by the selected attribute
-                var playerSelected = [];
-                this.cardChoices.first( function( cs ){
-                    cs.forEach( function( c ){ 
-                        if ( c.selected ) {
-                            playerSelected.push( c );
-                        }
-                    });
-                    return playerSelected.length > 0;
-                });
-                
-                if ( playerSelected.length > 0 )
-                {
-                    card = playerSelected;
-                }
-                else
-                {
-                    // auto player pick
-                    card = player.makeChoice( this.cardChoices );    
-                }
-                
-                
-                // clear any selected values now the choice is made
-                this.cardChoices.forEach( function( cs ){ cs.forEach( function(c){ delete c.selected; }); });            
-
-            } else {
-
-                // if player.hand is empty and not blind
-                // then can select "invalid" card group from faceup into hand
-                // so need another player choice function: selectFaceupCardsToPromote
-                
-                if ( player.isHandEmpty() && !player.isBlind() )
-                {
-                    var cardsToPromote = player.selectFaceupCardsToPromote();
-                    
-                    log.write( player.name + " promotes [" + cardsToPromote + "]" );
-                    
-                    if ( cardsToPromote ) {
-                        cardsToPromote.forEach( function( c ) {
-                            player.discardCard( c );
-                            player.receiveCard( c );
-                        });
+            // player may have already made their choice
+            // indicated by the selected attribute
+            var playerSelected = [];
+            this.cardChoices.first( function( cs ){
+                cs.forEach( function( c ){ 
+                    if ( c.selected ) {
+                        playerSelected.push( c );
                     }
-                }
-            }
-
+                });
+                return playerSelected.length > 0;
+            });
             
-
-            if ( card == null || card.length === 0 )
+            if ( playerSelected.length > 0 )
             {
-                log.write( player.name + " picks discard pile [" + this.discard + "]." );
-
-                while ( this.discard.length > 0 )
-                {
-                    var discard = this.discard.pop( );
-                    player.receiveCard( discard );
-                }
-
-                this.nextPlayer = this.players[ player.previousPlayer ];
-            }
-            else if ( card[ 0 ].value === 10 )
-            {
-                log.write( player.name + " discards [" + card + "]." );
-
-                var game = this;
-                card.forEach( function( c ) {
-                    player.discardCard( c );
-                    game.discard.push( c );
-                });
-
-                log.write( "Tssshhhh... 10 - discard to trash [" + this.discard + "]." );
-
-                while ( this.discard.length > 0 )
-                {
-                    this.trash.push( this.discard.pop( ) );
-                }
-                
-                // rule: player tops up hand to max of 3
-                if ( player.hand.length < 3 )
-                {
-                    var newCard = this.takeNextCardOffStack();
-                    
-                    if ( newCard )
-                    {
-                        log.write( player.name + " picks [" + newCard + "]." );
-                        player.receiveCard( newCard );
-                    }
-                }
-                // play again: not changing this.nextPlayer
-            }
-            else if ( topCard && card[ 0 ].value !== 2 && card[ 0 ].value < topCard.value )
-            {
-                log.write( player.name + " illegal discard [" + card + "]." );
-                log.write( player.name + " picks discard pile [" + this.discard + "]." );
-                
-                // move card from blind or faceup to hand
-                card.forEach( function( c ){
-                    player.discardCard( c );
-                    player.receiveCard( c );
-                });
-                    
-                while ( this.discard.length > 0 ) {
-                    var discard = this.discard.pop( );
-                    player.receiveCard( discard );
-                }
-                
-                this.nextPlayer = this.players[ player.previousPlayer ];            
+                card = playerSelected;
             }
             else
             {
-                if ( this.firstGo )
-                {
-                    this.firstGo = false;
-                }
-                
-                log.write( player.name + " discards [" + card + "]." );
+                // auto player pick
+                card = player.makeChoice( this.cardChoices );    
+            }
+            
+            
+            // clear any selected values now the choice is made
+            this.cardChoices.forEach( function( cs ){ cs.forEach( function(c){ delete c.selected; }); });            
 
-                
-                var game = this;
-                card.forEach( function( c ) {
-                    player.discardCard( c );
-                    game.discard.push( c );
-                });
-                
-                
-                var playAgain = false;
+        } else {
 
-                if ( this.topFourOfAKind() )
-                {
-                    log.write( "Tssshhhh... 4 of a kind - discard to trash [" + this.discard + "]." );
-                    
-                    while ( this.discard.length > 0 ) {
-                        this.trash.push( this.discard.pop( ) );
-                    }
-                    // play again: not changing this.nextPlayer
-                }
-                else
-                {
-                    this.nextPlayer = this.players[ player.nextPlayer ];
-                }
-
-                // rule: player tops up hand to max of 3
-                if ( player.hand.length < 3 )
-                {
-                    var game = this;
-                    card.forEach( function() {
-                        var newCard = game.takeNextCardOffStack();
-                        while ( newCard != null && card != null && newCard.value === card.value )
-                        {
-                            log.write( player.name + " picks and discards [" + newCard + "]." );                    
-                            
-                            game.discard.push( newCard );
-                            newCard = game.takeNextCardOffStack();
-                        }
-                        
-                        if ( newCard )
-                        {
-                            log.write( player.name + " picks [" + newCard + "]." );                    
-
-                            player.receiveCard( newCard );
-                        }
-                    } );
+            // if player.hand is empty and not blind
+            // then can select "invalid" card group from faceup into hand
+            // so need another player choice function: selectFaceupCardsToPromote
+            
+            if ( player.isHandEmpty() && !player.isBlind() )
+            {
+                var cardsToPromote = player.selectFaceupCardsToPromote();
+                
+                log.write( player.name + " promotes [" + cardsToPromote + "]" );
+                
+                if ( cardsToPromote ) {
+                    cardsToPromote.forEach( function( c ) {
+                        player.discardCard( c );
+                        player.receiveCard( c );
+                    });
                 }
             }
-            
-                    
-            // clear selectable on old player choices
-            this.setCardsSelectable( false, this.cardChoices );
-            
-            // drop old card choices
-            this.cardChoices = null;
-
-            //
-            player.clean();
-            
-            // maybe extract finished player
-            if ( player.isFinished() )
-            {
-                // detach this player from player previous/next links
-                var previousPlayer = this.players[ player.previousPlayer ];
-                var nextPlayer = this.players[ player.nextPlayer ];
-                
-                previousPlayer.nextPlayer = player.nextPlayer;
-                nextPlayer.previousPlayer = player.previousPlayer;
-                
-                // case that player laid a ten or 4 of a kind
-                if ( player === this.nextPlayer )
-                {
-                    this.nextPlayer = nextPlayer;
-                }            
-                
-                player.finished = true;
-                player.finishedStepCount = this.stepCount;
-
-                log.write( player.name + " has finished at step " + this.stepCount );   
-                
-                // stats
-                this.stats.winners.push( player );
-            }
-
-            
-            // set selectable on next player choices
-            if ( this.nextPlayer )
-            {
-                this.cardChoices = this.playerChoices( this.nextPlayer );
-                this.setCardsSelectable( true, this.cardChoices );            
-                this.setCardsSelected( true, this.nextPlayer.makeChoice( this.cardChoices ) );
-                
-                log.write( this.nextPlayer.name + " is the next player." );
-            }
-            
-            if ( topCard )
-            {
-                delete topCard.topDiscard;
-            }
-            
-            // now look at the current top discard
-            topCard = this.topDiscard();
-
-            if ( topCard )
-            {
-                topCard.topDiscard = true;
-            }
-        
-            if ( this.isFinished() )
-            {
-                log.write( "Finished: " + game );                
-                
-                this.onFinish( this );
-            }
-
-        } finally {
-        
-            this.lastPlay = log.capture();
         }
+
+        
+
+        if ( card == null || card.length === 0 )
+        {
+            log.write( player.name + " picks discard pile [" + this.discard + "]." );
+
+            while ( this.discard.length > 0 )
+            {
+                var discard = this.discard.pop( );
+                player.receiveCard( discard );
+            }
+
+            this.nextPlayer = this.players[ player.previousPlayer ];
+        }
+        else if ( card[ 0 ].value === 10 )
+        {
+            log.write( player.name + " discards [" + card + "]." );
+
+            var game = this;
+            card.forEach( function( c ) {
+                player.discardCard( c );
+                game.discard.push( c );
+            });
+
+            log.write( "Tssshhhh... 10 - discard to trash [" + this.discard + "]." );
+
+            while ( this.discard.length > 0 )
+            {
+                this.trash.push( this.discard.pop( ) );
+            }
+            
+            // rule: player tops up hand to max of 3
+            if ( player.hand.length < 3 )
+            {
+                var newCard = this.takeNextCardOffStack();
+                
+                if ( newCard )
+                {
+                    log.write( player.name + " picks [" + newCard + "]." );
+                    player.receiveCard( newCard );
+                }
+            }
+            // play again: not changing this.nextPlayer
+        }
+        else if ( topCard && card[ 0 ].value !== 2 && card[ 0 ].value < topCard.value )
+        {
+            log.write( player.name + " illegal discard [" + card + "]." );
+            log.write( player.name + " picks discard pile [" + this.discard + "]." );
+            
+            // move card from blind or faceup to hand
+            card.forEach( function( c ){
+                player.discardCard( c );
+                player.receiveCard( c );
+            });
+                
+            while ( this.discard.length > 0 ) {
+                var discard = this.discard.pop( );
+                player.receiveCard( discard );
+            }
+            
+            this.nextPlayer = this.players[ player.previousPlayer ];            
+        }
+        else
+        {
+            if ( this.firstGo )
+            {
+                this.firstGo = false;
+            }
+            
+            log.write( player.name + " discards [" + card + "]." );
+
+            
+            var game = this;
+            card.forEach( function( c ) {
+                player.discardCard( c );
+                game.discard.push( c );
+            });
+            
+            
+            var playAgain = false;
+
+            if ( this.topFourOfAKind() )
+            {
+                log.write( "Tssshhhh... 4 of a kind - discard to trash [" + this.discard + "]." );
+                
+                while ( this.discard.length > 0 ) {
+                    this.trash.push( this.discard.pop( ) );
+                }
+                // play again: not changing this.nextPlayer
+            }
+            else
+            {
+                this.nextPlayer = this.players[ player.nextPlayer ];
+            }
+
+            // rule: player tops up hand to max of 3
+            if ( player.hand.length < 3 )
+            {
+                var game = this;
+                card.forEach( function() {
+                    var newCard = game.takeNextCardOffStack();
+                    while ( newCard != null && card != null && newCard.value === card.value )
+                    {
+                        log.write( player.name + " picks and discards [" + newCard + "]." );                    
+                        
+                        game.discard.push( newCard );
+                        newCard = game.takeNextCardOffStack();
+                    }
+                    
+                    if ( newCard )
+                    {
+                        log.write( player.name + " picks [" + newCard + "]." );                    
+
+                        player.receiveCard( newCard );
+                    }
+                } );
+            }
+        }
+        
+                
+        // clear selectable on old player choices
+        this.setCardsSelectable( false, this.cardChoices );
+        
+        // drop old card choices
+        this.cardChoices = null;
+
+        //
+        player.clean();
+        
+        // maybe extract finished player
+        if ( player.isFinished() )
+        {
+            // detach this player from player previous/next links
+            var previousPlayer = this.players[ player.previousPlayer ];
+            var nextPlayer = this.players[ player.nextPlayer ];
+            
+            previousPlayer.nextPlayer = player.nextPlayer;
+            nextPlayer.previousPlayer = player.previousPlayer;
+            
+            // case that player laid a ten or 4 of a kind
+            if ( player === this.nextPlayer )
+            {
+                this.nextPlayer = nextPlayer;
+            }            
+            
+            player.finished = true;
+            player.finishedStepCount = this.stepCount;
+
+            log.write( player.name + " has finished at step " + this.stepCount );   
+            
+            // stats
+            this.stats.winners.push( player );
+        }
+
+        
+        // set selectable on next player choices
+        if ( this.nextPlayer )
+        {
+            this.cardChoices = this.playerChoices( this.nextPlayer );
+            this.setCardsSelectable( true, this.cardChoices );            
+            this.setCardsSelected( true, this.nextPlayer.makeChoice( this.cardChoices ) );
+            
+            log.write( this.nextPlayer.name + " is the next player." );
+        }
+        
+        if ( topCard )
+        {
+            delete topCard.topDiscard;
+        }
+        
+        // now look at the current top discard
+        topCard = this.topDiscard();
+
+        if ( topCard )
+        {
+            topCard.topDiscard = true;
+        }
+    
+        if ( this.isFinished() )
+        {
+            this.state = "finished";
+            
+            log.write( "Finished: " + game );                
+            
+            this.onFinish( this );
+        }
+
     };
 
+
+Game.prototype.step = function( ) {
+    
+    log.start();
+
+    try 
+    {
+        switch ( this.state )
+        {
+            case "new": 
+                this.init();
+                log.write( "state: init --> " + this.state );
+                break;
+                
+            case "prepare": 
+                this.prepare();
+                log.write( "state: prepare --> " + this.state );
+                break;
+                
+            case "identifyFirstPlayer":
+                this.identifyFirstPlayer();
+                log.write( "state: identifyFirstPlayer --> " + this.state );
+                break;
+                
+            case "play":
+                this.play();
+                log.write( "state: play --> " + this.state );
+                break;
+
+            case "finished":
+                log.write( "state: finished!" );
+                break;
+
+            default:
+                log.write( "unexpected state: " + this.state );
+                
+        }
+    } 
+    finally 
+    {
+        this.lastPlay = log.capture();        
+    }        
+};    
+    
+    
+    
 ""

@@ -360,26 +360,16 @@
 					
 					
 					
-					play: function(){
+					step: function(){
 						if ( game ) {
 							try { 
-								game.play(); 
+								game.step(); 
 							} finally { 
 								sh.view.update();
 							}
 						}
 					},
 					
-					
-					start: function(){
-						if ( game ) {
-							try { 
-								game.start();
-							} finally { 
-								sh.view.update();
-							}
-						}
-					},	
 
 					runDelayMillis: 50,
 					
@@ -387,20 +377,13 @@
 					
 						try {
 						
-							if ( !running || !game ) {
+							if ( !running || !game || game.state === "finished" ) {
 								return;
 							}
 	
 							game.isRunning = true;
 
-							if ( !game.isStarted ) {
-
-								game.start();
-								sh.view.update();
-							}
-							
-							game.play();
-							sh.view.update();
+							this.step();
 							
 							var controller = this;
 							
@@ -449,15 +432,18 @@
 						return gamePlayers;
 					
 					},
-										
+								
+
+
+								
 					newGame: function(){					
 						try {
 							sh.view.clearPlayLog();
 							
 							game = new Game( 
-								this.createGamePlayers( 
-									eval( 
-										document.getElementById( 'playerDefinitions' ).value ) ) );
+								this.createGamePlayers( eval( document.getElementById( 'playerDefinitions' ).value ) ),
+							    Cards.shuffle() 
+							);
 
 							game.onStart = function( game ) {
 
@@ -474,8 +460,6 @@
 							};										
 										
 							game.onFinish = function( game ) {
-							
-
 
 								game.playLog = sh.view.getPlayLog();
 								games.push( game );
@@ -484,9 +468,23 @@
 								
 							};
 										
-							game.start();
+							this.step();
 							
-							sh.view.update( );
+						} catch ( e ) {
+							alert( "Error creating game: " + e );
+							
+							throw e;
+						}
+					},
+					
+								
+					restartGame: function(){					
+						try {
+							sh.view.clearPlayLog();
+							
+							game.state = "new";
+										
+							this.step();
 							
 						} catch ( e ) {
 							alert( "Error creating game: " + e );
@@ -494,6 +492,7 @@
 							throw e;
 						}
 					}
+					
 				}
 			};		
 			
@@ -513,12 +512,13 @@
 	</head>
 	<body>
 		<div style="float:right">
-			<input type="button" value="Deal" onclick="sh.controller.newGame();"/>
+			<input type="button" value="New Game" onclick="sh.controller.newGame();"/>
+			<input type="button" value="Restart" onclick="sh.controller.restartGame();"/>
 			<input type="button" value="Run" onclick="sh.controller.run( true );"/>
 			<input type="button" value="Stop" onclick="sh.controller.stop();"/>
 			<input type="text" value="50" size="10" onchange="sh.controller.runDelay( this.value )"/>
 			|
-			<input type="button" value="Step" onclick="sh.controller.play();"/>
+			<input type="button" value="Step" onclick="sh.controller.step();"/>
 		</div>
 		<p>Shithead</p>
 		<div id="players-area-closed">
