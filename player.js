@@ -18,7 +18,7 @@ Player.prototype.isBlind = function( ){
     return this.isHandEmpty() && this.isFaceupEmpty();
 };
 Player.prototype.isFinished = function( ){
-    return this.isBlind() && ( !this.blind || this.blind.length === 0 );;
+    return this.isBlind() && ( !this.blind || this.blind.length === 0 );
 };
 
 // make any swaps between this.hand and this.faceup

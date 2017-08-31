@@ -122,12 +122,14 @@ Game.prototype.onStart = function( game ){};
 Game.prototype.onStop = function( game ){};    
 Game.prototype.onFinish = function( game ){};    
 
-Game.prototype.topDiscard = function() { return this.discard.length > 0 ? this.discard[ this.discard.length - 1 ] : null; }
+Game.prototype.topDiscard = function() { return this.discard.length > 0 ? this.discard[ 0 ] : null; }
 Game.prototype.takeNextCardOffStack = function() {
         if ( this.stack.length > 0 ) {
-            var p = this.stack.length;
-            var card = this.stack[ p - 1 ]; 
-            this.stack.splice( p - 1, 1 );            
+//            var p = this.stack.length;
+//            var card = this.stack[ p - 1 ]; 
+//            this.stack.splice( p - 1, 1 );            
+            var card = this.stack[ 0 ]; 
+            this.stack.splice( 0, 1 );            
             return card;       
         }
         return null;
@@ -161,14 +163,20 @@ Game.prototype.findFirstPlayer = function( ) {
         for ( var i = 3; i <= 14; i++ ) {
             firstPlayer = this.players.first( function( player ) { return player.hand.first( function( card ) { return ( card.value === i ); }); } );
             if ( firstPlayer != null ) {
+                
+                // player must play declared first card
+                firstPlayer.requiredFirstPlay = i;
+                
                 return firstPlayer;
             }
         }
         return null;
     };
+    
+    
 Game.prototype.deal = function( ) {
     
-        this.players.forEach( function( player ) {
+        this.players.forEach( player => {
             player.blind = [];
             player.faceup = [];
             player.hand = [];
@@ -176,7 +184,7 @@ Game.prototype.deal = function( ) {
             
         // deal blind cards
         for ( var i = 1; i <= 3; i++ ) {
-            this.players.forEach( function( player ) {
+            this.players.forEach( player => {
                 var numBlind = player.blind.length;                
                 if ( numBlind < 3 ) {
                     var card = game.takeNextCardOffStack();
@@ -188,7 +196,7 @@ Game.prototype.deal = function( ) {
         }
         // deal faceup cards
         for ( var i = 1; i <= 3; i++ ) {
-            this.players.forEach( function( player ) {
+            this.players.forEach( player => {
                 var numFaceup = player.faceup.length;
                 if ( numFaceup < 3 ) {
                     var card = game.takeNextCardOffStack();
@@ -200,7 +208,7 @@ Game.prototype.deal = function( ) {
         }
         // deal hand cards
         for ( var i = 1; i <= 3; i++ ) {
-            this.players.forEach( function( player ) {
+            this.players.forEach( player => {
                 var numHand = player.hand.length;
                 if ( numHand < 3 ) {
                     var card = game.takeNextCardOffStack();
@@ -321,10 +329,11 @@ Game.prototype.init = function( ) {
     this.stack = this.cards.slice( 0 );
     this.discard = [];
     this.trash = [];
-    
-    log.write( "cards are dealt." ); 
+
     
     this.deal();
+
+    log.write( "cards are dealt." ); 
     
     this.state = "prepare";
 };
@@ -343,9 +352,13 @@ Game.prototype.prepare = function( ) {
                 notPrepared = true;
             }
         } );    
+        
         if ( !notPrepared )
         {
+            log.write( "players prepared after [" + i + "] round" + ( i == 1 ? "" : "s" ) + "." ); 
+
             this.state = "identifyFirstPlayer";    
+            
             return;
         }
     }
@@ -483,6 +496,19 @@ Game.prototype.play = function( ){
                 // auto player pick
                 card = player.makeChoice( this.cardChoices );    
             }
+            
+            
+            if ( player.requiredFirstPlay  )
+            {
+                // check card has value
+                if ( player.requiredFirstPlay !== card[ 0 ].value )
+                {
+                    throw "Player[ " + player.name + " ] must play a card of value [" + Card.prototype.keyValue( player.requiredFirstPlay ) + "].";
+                }
+                
+                delete player.requiredFirstPlay;
+            }
+            
             
             
             // clear any selected values now the choice is made
@@ -736,6 +762,11 @@ Game.prototype.step = function( ) {
                 
         }
     } 
+    catch ( e )
+    {
+        log.write( e );
+        throw e;
+    }
     finally 
     {
         this.lastPlay = log.capture();        

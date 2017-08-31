@@ -21,14 +21,62 @@ Card.prototype.id = function( ){
 };
 Card.prototype.toString = function() {
     return this.valueKey() + this.suitGlyph; 
-//'' + this.name + " of " + this.suit + " (" + this.value + ") " + this.glyph;
 };
+
 Card.prototype.clean = function() {
     delete this.selectable;
     delete this.selectgroup;
     delete this.selected;
     delete this.topDiscard;
 };
+Card.prototype.suitToGlyph = function( suit ) {
+    switch ( s ) {
+        case "Spades":
+            return '\u2660';
+        case "Diamonds":
+            return '\u2666';
+        case "Clubs":
+            return '\u2663';
+        case "Hearts":
+            return '\u2764';
+    }   
+    throw "Invalid suit: " + suit;
+}
+
+Card.prototype.glyphToSuit = function( glyph ) {
+    switch ( glyph ) {
+        case "\u2660":
+            return "Spades";
+        case "\u2666":
+            return "Diamonds";
+        case "\u2663":
+            return "Clubs";
+        case "\u2764":
+            return "Hearts";
+    }   
+    throw "Invalid suit glyph: " + glyph;
+}
+
+Card.prototype.decode = function( s ) {
+    
+    var value = this.keyValue( s.substring( 0, s.length - 1 ) );
+    var glyph = s.substring( s.length - 1 );
+    
+    var suitKey = Card.prototype.glyphToSuit( glyph );
+    
+    var suit = Cards.deck[ suitKey ];
+    
+    for ( var n in suit )
+    {
+        if ( suit[ n ].value == value )
+        {
+            return suit[ n ];
+        }
+    }
+    throw "Failed to decode: value=[" + value + "], glyph=[" + glyph + "], suit=[" + suitKey + "]; data=[" + s + "].";
+};
+
+
 
 var Cards = {
     deck: {
@@ -116,10 +164,9 @@ var Cards = {
       return array;
     },
            
-            
-    shuffle: function( )
-    {
-        var hands = [];
+    newDeck: function(){
+        
+        var unshuffledDeck = [];
         
         for ( var s in this.deck )
         {
@@ -184,10 +231,16 @@ var Cards = {
                 card.suitGlyph = suitGlyph;
                 
                 // adding new one
-                hands[ hands.length ] = card;  
+                unshuffledDeck[ unshuffledDeck.length ] = card;  
             }
         }
-        return this.shuffleArray( hands );
+        return unshuffledDeck;
+    },        
+            
+            
+    shuffle: function( )
+    {
+        return this.shuffleArray( this.newDeck() );
     },
     
     sortCardSet: function( cardSet ) { 
@@ -199,7 +252,37 @@ var Cards = {
                 :( b.value === 2 ) ? -1
                 :( a.value - b.value );
             }); 
-    }    
+    },
+
+    fromData: function( data )
+    {
+        var cards  = [];
+        data
+            .split( "," )
+            .forEach( s => cards.push( Card.prototype.decode( s.trim() ) ) );
+        
+        return cards;
+    },
+    
+    formatCardDeck( deckToFormat )
+    {
+        // wrapped layout
+        
+        var formattedText = "";
+        var isFirst = true;
+        var index = -1;
+        var cols = 4;
+        
+        deckToFormat
+            .forEach( card => { 
+                formattedText += ( isFirst ? "" : ", " ) 
+                    + ( (index % cols) != ( cols - 1 ) ? "" : "\n" ) 
+                    + card;
+                isFirst = false;
+                index++;
+            } );        
+        return formattedText;
+    }
 };
 
 

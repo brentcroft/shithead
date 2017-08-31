@@ -6,6 +6,7 @@
 			body, div, p, pre, textarea, input {
 				margin: 5px;
 				font-size: 100%;
+				font-family: sans-serif
 			}
 		
 			#game { 
@@ -211,7 +212,7 @@
 
 						playerDiv += '<div class="playerDetails">';
 						playerDiv += '<div>' + player.name + ( isNextGo ? ' (next)' : '' ) + '</div>';
-						playerDiv += '<div>Auto <input type="checkbox" value="auto" ' + ( player.autoPlay ? 'checked="checked"' : '' ) + '" onclick="sh.setPlayerAuto( \'' + player.name + '\', this.checked )"/></div>';
+						playerDiv += '<div>Auto <input type="checkbox" value="auto" ' + ( player.autoPlay ? 'checked="checked"' : '' ) + '" onclick="sh.controller.setPlayerAuto( \'' + player.name + '\', this.checked )"/></div>';
 						playerDiv += '</div>';
 
 						if ( player.finished )
@@ -294,13 +295,17 @@
 				controller: {
 				
 					setPlayerAuto: function( name, autoPlay ){
-						var player = players.first( function( player ){ return player.name === name; });
+						var player = game.players.first( function( player ){ return player.name === name; });
 						
 						if ( player != null )
 						{
 							player.autoPlay = autoPlay;
 
 							log.write( player.name + " autoPlay " + player.autoPlay );
+						}
+						else
+						{
+							log.write( "No such player: " + name );
 						}
 					},
 					
@@ -433,6 +438,39 @@
 					
 					},
 								
+					loadPlayers( playersArea )
+					{
+						if ( game )
+						{
+							game.players = this.createGamePlayers( eval( playersArea.value ) );
+							
+							this.restartGame();
+						}
+						else
+						{
+							alert( "No game!" );
+						}
+					},
+
+					loadCards( cardDataArea )
+					{
+						if ( game )
+						{
+							var cardDataArray = cardDataArea.value;						
+						
+							var newDeck = Cards.fromData( cardDataArray );
+							
+							game.cards = newDeck;
+							
+							cardDataArea.value = Cards.formatCardDeck( newDeck );
+							
+							this.restartGame();
+						}
+						else
+						{
+							alert( "No game!" );
+						}
+					},
 
 
 								
@@ -445,10 +483,13 @@
 							    Cards.shuffle() 
 							);
 
+							// set cards text area								
+							document.getElementById( "cards" ).value =  Cards.formatCardDeck( game.cards );
+							
+							
 							game.onStart = function( game ) {
 
 								// setup stats
-								
 							};										
 
 										
@@ -530,7 +571,10 @@
 			</p>
 		</div>
 		<div id="players-area-open" style="display: none;">
-			<p>Players: [<a onclick="showHide( 'players-area-open' ); showHide( 'players-area-closed' );">close</a>]</p>
+			<p>Players: 
+				[<a onclick="showHide( 'players-area-open' ); showHide( 'players-area-closed' );">close</a>]
+				[<a onclick="sh.controller.loadPlayers( document.getElementById( 'playerDefinitions' ) );">load</a>]
+			</p>
 			<textarea id="playerDefinitions" class="script">[
   { 
     "name": "alberto"
@@ -545,6 +589,20 @@
   }
 ]</textarea>
 		
+		</div>
+		<div id="cards-area-closed">
+			<p>
+				Cards: 
+				[<a onclick="showHide( 'cards-area-open' ); showHide( 'cards-area-closed' );">open</a>]
+			</p>
+		</div>
+		<div id="cards-area-open" style="display: none;">
+			<p>
+				Cards: 
+				[<a onclick="showHide( 'cards-area-open' ); showHide( 'cards-area-closed' );">close</a>]
+				[<a onclick="sh.controller.loadCards( document.getElementById( 'cards' ) );">load</a>]
+			</p>
+			<textarea class="script" id="cards" cols="20">(no game)</textarea>
 		</div>
 		<hr/>
 
