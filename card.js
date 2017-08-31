@@ -236,8 +236,8 @@ var Cards = {
         }
         return unshuffledDeck;
     },        
-            
-            
+
+
     shuffle: function( )
     {
         return this.shuffleArray( this.newDeck() );
