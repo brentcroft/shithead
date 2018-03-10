@@ -122,7 +122,7 @@ Game.prototype.onStart = function( game ){};
 Game.prototype.onStop = function( game ){};    
 Game.prototype.onFinish = function( game ){};    
 
-Game.prototype.topDiscard = function() { return this.discard.length > 0 ? this.discard[ 0 ] : null; }
+Game.prototype.topDiscard = function() { return this.discard.length > 0 ? this.discard[ this.discard.length - 1 ] : null; }
 Game.prototype.takeNextCardOffStack = function() {
         if ( this.stack.length > 0 ) {
 //            var p = this.stack.length;

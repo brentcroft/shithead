@@ -577,11 +577,12 @@
 			</p>
 			<textarea id="playerDefinitions" class="script">[
   { 
-    "name": "alberto"
+    "name": "alberto",
+    "prepareCards": function() { Strategy.prepareCards( this.hand, this.faceup, Strategy.sort.byValueAceBeatsTwo ); }
   },
   { 
     "name": "belinda",
-    "prepareCards": function() { Strategy.prepareCards( this.hand, this.faceup, Strategy.sort.byValue ); }
+    "prepareCards": function() { Strategy.prepareCards( this.hand, this.faceup, Strategy.sort.byValueAceBeatsTwo ); }
   },  
   { 
     "name": "caprice",
