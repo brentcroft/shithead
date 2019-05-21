@@ -1,8 +1,10 @@
 package com.brentcroft.shithead;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -10,6 +12,7 @@ import java.util.stream.IntStream;
 
 import lombok.Getter;
 
+@Getter
 public class Cards
 {
     public final static int NUM_SUITS = 4;
@@ -29,6 +32,12 @@ public class Cards
     public static Card newCard( int i )
     {
         return new Card( i );
+    }
+
+
+    public static String toJson(Collection< Card > cards)
+    {
+        return "[ " + cards.stream().map( c-> "\"" + c + "\"" ).collect( joining( ", " ) ) + " ]";
     }
 
 
@@ -98,6 +107,7 @@ public class Cards
 
     private final Stack< Card > cards;
 
+
     public Cards( List< Integer > cardIds )
     {
         cards = new Stack<>();
@@ -110,6 +120,10 @@ public class Cards
                 .range( 0, 52 )
                 .boxed()
                 .collect( Collectors.toList() ) );
+    }
+
+    public int size() {
+        return cards.size();
     }
 
 

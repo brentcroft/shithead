@@ -43,12 +43,17 @@ public class Player
         return format( "%s", name );
     }
 
+    public static String joinCards(List< Card > cards)
+    {
+        return "[ " + cards.stream().map( Object::toString ).collect( joining( ", " ) ) + " ]";
+    }
+
     public String cardsText()
     {
-        return format( "h=[%-10s] f=[%-10s] b=[%-10s]",
-                handCards.stream().map( Object::toString ).collect( joining( ", " ) ),
-                faceUpCards.stream().map( Object::toString ).collect( joining( ", " ) ),
-                blindCards.stream().map( Object::toString ).collect( joining( ", " ) ) );
+        return format( "h=%-10s f=%-10s b=%-10s",
+                joinCards(handCards ),
+                joinCards(faceUpCards ),
+                joinCards(blindCards ) );
     }
 
 

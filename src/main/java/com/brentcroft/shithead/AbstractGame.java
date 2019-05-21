@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 import com.brentcroft.shithead.Cards.Card;
@@ -20,6 +21,9 @@ public class AbstractGame
     public static final String INVALID_PLAY_CARDS_NOT_IN_HAND = "Invalid play, cards not in hand: %s %s";
     public static final String NOT_YOUR_TURN = "Not your turn %s";
     public static final String CARDS_NOT_DEALT = "Cards not dealt";
+    public static final String PLAYER_ALREADY_EXISTS = "PLAYER_ALREADY_EXISTS";
+
+
 
 
     protected final Cards cards = new Cards();
@@ -205,6 +209,36 @@ public class AbstractGame
         return false;
     }
 
+
+    public List<Card> stackTop()
+    {
+        List<Card> stackTop = new ArrayList<>();
+
+            Card topCard = null;
+            for ( int index = stack.size() - 1; index > 0; index-- )
+            {
+                Card nextCard = stack.elementAt( index );
+                if ( nextCard.getValue() != 3 )
+                {
+                    if ( topCard == null )
+                    {
+                        topCard = nextCard;
+                        stackTop.add(nextCard);
+                    }
+                    else if ( nextCard.getValue() == topCard.getValue() )
+                    {
+                        stackTop.add(topCard);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            return stackTop;
+    }
+
+
     protected void pickUpStack( Player player )
     {
         List< Card > pickedUp = new ArrayList<>();
@@ -249,6 +283,22 @@ public class AbstractGame
             }
         }
 
+    }
+
+    public boolean hasPlayer(String playerName) {
+        return players
+                .stream()
+                .filter(p->p.getName().equals(playerName))
+                .findFirst()
+                .isPresent();
+    }
+
+    public Player getPlayer(String playerName) {
+        return players
+                .stream()
+                .filter(p->p.getName().equals(playerName))
+                .findFirst()
+                .orElseThrow(()->new RuntimeException("No such player: " + playerName));
     }
 
 

@@ -1,5 +1,10 @@
 package com.brentcroft.shithead;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -7,6 +12,7 @@ import java.util.stream.IntStream;
 
 import com.brentcroft.shithead.Cards.Card;
 import com.brentcroft.shithead.Player.ROW;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Game extends AbstractGame
 {
@@ -14,7 +20,6 @@ public class Game extends AbstractGame
             card ) -> stack.isEmpty()
                     || Cards.isWildcard( card )
                     || card.getValue() >= stack.peek().getValue();
-
     protected final Predicate< Card > CARD_PREDICATE = ( card ) -> STACK_CARD_SELECTOR.apply( stack, card );
 
 
@@ -32,6 +37,10 @@ public class Game extends AbstractGame
             throw new RuntimeException( CARDS_ALREADY_DEALT );
         }
 
+        if (hasPlayer(player.getName()))
+        {
+            throw new RuntimeException(PLAYER_ALREADY_EXISTS);
+        }
         players.add( player );
     }
 
