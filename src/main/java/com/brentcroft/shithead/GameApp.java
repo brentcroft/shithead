@@ -1,6 +1,8 @@
 package com.brentcroft.shithead;
 
 
+import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.www.JSONRenderer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Controller;
@@ -14,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 @EnableAutoConfiguration
 public class GameApp {
 
-    Game game;
+    private StandardGame game;
 
     @RequestMapping("/")
     ModelAndView home() {
@@ -27,7 +29,7 @@ public class GameApp {
     String game() {
         if ( game == null )
         {
-            game = new Game();
+            game = new StandardGame();
         }
         return JSONRenderer.render(game);
     }
@@ -37,7 +39,7 @@ public class GameApp {
     String addPlayer(@PathVariable String name) {
         if ( game == null )
         {
-            game = new Game();
+            game = new StandardGame();
         }
 
         game.addPlayer(new Player(name));
@@ -57,8 +59,6 @@ public class GameApp {
 
         return JSONRenderer.render(game);
     }
-
-
 
     public static void main(String[] args) {
         SpringApplication.run(GameApp.class, args);

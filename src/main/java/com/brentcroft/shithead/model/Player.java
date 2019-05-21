@@ -1,16 +1,14 @@
-package com.brentcroft.shithead;
+package com.brentcroft.shithead.model;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.brentcroft.shithead.Cards.Card;
+import com.brentcroft.shithead.model.Cards.Card;
 
 import lombok.Getter;
 
@@ -78,7 +76,7 @@ public class Player
 
 
 
-    protected void addCard( ROW row, Card card )
+    public void addCard( ROW row, Card card )
     {
         getCards( row ).add( card );
     }
@@ -92,9 +90,7 @@ public class Player
     {
         return getCards( row )
                 .stream()
-                .filter( c -> c.getValue() == value )
-                .findFirst()
-                .isPresent();
+                .anyMatch(c -> c.getValue() == value );
 
     }
 
@@ -102,9 +98,7 @@ public class Player
     {
         return getCards( row )
                 .stream()
-                .filter( cards::contains )
-                .findFirst()
-                .isPresent();
+                .anyMatch( cards::contains );
 
     }
 
@@ -163,14 +157,14 @@ public class Player
         switch ( currentRow )
         {
             case BLIND:
-                return Arrays.asList( getCards( currentRow ).get( 0 ) );
+                return Collections.singletonList(getCards(currentRow).get(0));
 
 
             case HAND:
                 List< Card > cardsInCurrentRow = getCards( ROW.HAND );
                 choices = cardsInCurrentRow
                         .stream()
-                        .filter( selector::test )
+                        .filter(selector)
                         .collect( Collectors.toList() );
 
                 if ( choices.size() == cardsInCurrentRow.size() )
@@ -193,7 +187,7 @@ public class Player
             default:
                 choices = getCards( currentRow )
                         .stream()
-                        .filter( selector::test )
+                        .filter( selector )
                         .collect( Collectors.toList() );
 
         }
@@ -209,7 +203,7 @@ public class Player
 
         Card minCard = choices
                 .stream()
-                .min( ( c1, c2 ) -> Integer.compare( c1.getScore(), c2.getScore() ) )
+                .min(Comparator.comparingInt(Card::getScore))
                 .orElse( null );
 
         if ( minCard == null )

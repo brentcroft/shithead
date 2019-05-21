@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import com.brentcroft.shithead.Cards;
-import com.brentcroft.shithead.Cards.Card;
-import com.brentcroft.shithead.Player;
-import com.brentcroft.shithead.Player.ROW;
+import com.brentcroft.shithead.model.Cards;
+import com.brentcroft.shithead.model.Cards.Card;
+import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.model.Player.ROW;
 
 public class CardsUtil
 {

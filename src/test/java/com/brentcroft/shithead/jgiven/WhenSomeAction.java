@@ -3,9 +3,9 @@ package com.brentcroft.shithead.jgiven;
 import static com.brentcroft.shithead.jgiven.CardsUtil.ANY_CARDS;
 import static com.brentcroft.shithead.jgiven.CardsUtil.CARDS_NOT_IN_HAND;
 
-import com.brentcroft.shithead.Game;
-import com.brentcroft.shithead.Play;
-import com.brentcroft.shithead.Player;
+import com.brentcroft.shithead.StandardGame;
+import com.brentcroft.shithead.model.Discard;
+import com.brentcroft.shithead.model.Player;
 import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
@@ -14,7 +14,7 @@ import com.tngtech.jgiven.annotation.ProvidedScenarioState;
 public class WhenSomeAction extends Stage< WhenSomeAction >
 {
     @ExpectedScenarioState
-    Game game;
+    StandardGame game;
 
     @ProvidedScenarioState
     RuntimeException actionException;
@@ -23,7 +23,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
     Player player;
 
     @ProvidedScenarioState
-    Play play;
+    Discard play;
 
 
     interface GameAction
@@ -50,6 +50,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
         return self();
     }
 
+
     public WhenSomeAction deal_cards()
     {
         ga( () -> game.deal() );
@@ -59,14 +60,23 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
 
     public WhenSomeAction next_player()
     {
-        ga( () -> player = game.getCurrentPlayer() );
+        ga( () -> {
+            if (game.getGameModel().getCurrentPlayer() == null)
+            {
+                game.detectFirstPlayer();
+            }
+            player = game.getGameModel().getCurrentPlayer();
+        } );
         return self();
     }
 
 
     public WhenSomeAction plays( CardListGenerator cardsGenerator )
     {
-        ga( () -> game.play( new Play( cardsGenerator.cards( game.getCurrentPlayer() ) ) ) );
+        ga( () -> game.play(
+                new Discard(
+                        game.getGameModel().getCurrentPlayer().getName(),
+                        cardsGenerator.cards( game.getGameModel().getCurrentPlayer() ) ) ) );
         return self();
     }
 

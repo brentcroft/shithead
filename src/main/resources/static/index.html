@@ -9,7 +9,7 @@
 				font-family: sans-serif
 			}
 
-			#game {
+			#gameModel {
 			  display: flex;
 			  flex-direction: row;
 			  flex-wrap: nowrap;
@@ -151,7 +151,7 @@
                     return "(empty)";
                 }
 
-                var isNextGo = ( game.nextPlayer && game.nextPlayer === player );
+                var isNextGo = ( gameModel.nextPlayer && gameModel.nextPlayer === player );
 
 
                 var playerDiv = '<div id="' + player.name + '" class="player' + ( isNextGo ? ' nextPlayer' : '' ) + '">';
@@ -176,12 +176,12 @@
 
 
 
-            function refreshPlayers( game )
+            function refreshPlayers( gameModel )
             {
                 var update = '';
 
-                if ( game && game.players ) {
-                    game.players.forEach( function( player ){
+                if ( gameModel && gameModel.players ) {
+                    gameModel.players.forEach( function( player ){
                         update += formatPlayer( player );
                     } )
                 }
@@ -191,18 +191,18 @@
 
 
 
-			function refreshGame( game )
+			function refreshGame( gameModel )
 			{
-                var update = '<div id="deck" class="pile"><p>Deck size: ' + game.deck.length + '</p>';
+                var update = '<div id="deck" class="pile"><p>Deck size: ' + gameModel.deck.length + '</p>';
                 update += '</div>';
 
                 update += '<div id="stack" class="pile">';
-                update += formatCardSet( game.stack, "stack", "Stack" );
+                update += formatCardSet( gameModel.stack, "stack", "Stack" );
                 update += '</div>';
 
                 update += '<div id="trash" class="pile"><p>Trash size: ?</p></div>';
 
-                var gameDiv = document.getElementById( 'game' );
+                var gameDiv = document.getElementById( 'gameModel' );
 
                 gameDiv.innerHTML = update;
             }
@@ -220,24 +220,24 @@
                 {
                   return response.json();
                 })
-                .then( function( game )
+                .then( function( gameModel )
                 {
-                    refreshGame( game );
-                    refreshPlayers( game );
+                    refreshGame( gameModel );
+                    refreshPlayers( gameModel );
                 });
 			}
 		</script>
 </head>
-    <body onload="fetchJSON( '/game' )">
+    <body onload="fetchJSON( '/gameModel' )">
         <p>Shithead</p>
         <a href="javascript:fetchJSON( 'add-player/red' )">add red</a> |
         <a href="javascript:fetchJSON( 'add-player/green' )">add green</a> |
         <a href="javascript:fetchJSON( 'add-player/blue' )">add blue</a> |
         <a href="javascript:fetchJSON( 'deal' )">deal</a>
         <hr/>
-        <div id="game" class="game">(no game)</div>
+        <div id="gameModel" class="gameModel">(no gameModel)</div>
         <div id="players" class="players">(no players)</div>
         <hr/>
-        <pre id="game-play-log"></pre>
+        <pre id="gameModel-play-log"></pre>
     </body>
 </html>

@@ -1,18 +1,17 @@
-package com.brentcroft.shithead;
+package com.brentcroft.shithead.model;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Getter
+@Component
 public class Cards
 {
     public final static int NUM_SUITS = 4;
@@ -35,10 +34,80 @@ public class Cards
     }
 
 
-    public static String toJson(Collection< Card > cards)
-    {
-        return "[ " + cards.stream().map( c-> "\"" + c + "\"" ).collect( joining( ", " ) ) + " ]";
+
+    public static List<Card> abacinate(List<Card> blindCards) {
+        return blindCards
+                .stream()
+                .map(Cards::blindCard)
+                .collect(Collectors.toList());
     }
+
+    private static Card blindCard(Card card) {
+        return new Card(-1);
+    }
+
+    public static Card getCard(String ct) {
+        switch (ct.length())
+        {
+            case 3:
+                return new Card( getTextValue( ct.substring(0,2)), getTextSuit( ct.charAt(2)));
+            case 2:
+                return new Card( getTextValue( ct.substring(0,1)), getTextSuit( ct.charAt(1)));
+
+            default:
+                throw new RuntimeException("Invalid card text: " + ct);
+        }
+    }
+
+    public static int getTextValue( String text)
+    {
+        switch (text)
+        {
+            case "?": return 0;
+            case "A": return 1;
+            case "K": return 13;
+            case "Q": return 12;
+            case "J": return 11;
+
+            default:
+                return Integer.valueOf(text);
+        }
+    }
+
+    public static int getTextSuit( char text )
+    {
+        switch ( text )
+        {
+            case '?': return -1;
+            case '\u2660': return 0;
+            case '\u2666': return 1;
+            case '\u2663': return 2;
+            case '\u2764': return 3;
+        }
+        return -2;
+        // throw new RuntimeException( "Invalid suit: " + suit );
+    }
+
+
+
+    public static String toText(List<Card> cards) {
+        return format("[%s]", cards.stream().map(Object::toString).collect(joining(", ")));
+    }
+
+    public static List<Card> fromText(String text) {
+        if ( text.length() < 2)
+        {
+            throw new RuntimeException("Invalid cards text: " + text);
+        }
+        text = text.substring(1, text.length()-1);
+
+        return Arrays
+                .asList(text.split("\\s*,\\s*"))
+                .stream()
+                .map(ct -> Cards.getCard(ct))
+                .collect(Collectors.toList());
+    }
+
 
 
 
@@ -50,8 +119,15 @@ public class Cards
 
         public Card( int i )
         {
-            this.suit = i / SUIT_SIZE;
-            this.value = 1 + ( i % SUIT_SIZE );
+            this(
+                    i < 0 ? -1 : 1 + ( i % SUIT_SIZE ),
+                    i < 0 ? -1 : i / SUIT_SIZE );
+        }
+
+        public Card(int value,int suit)
+        {
+            this.value = value;
+            this.suit = suit;
         }
 
 
@@ -68,17 +144,25 @@ public class Cards
 
         public String getValueText()
         {
-            return value == 1 ? "A"
+            return value < 0 ? "?"
+                : value == 1 ? "A"
                     : this.value == 13 ? "K"
                             : this.value == 12 ? "Q"
                                     : this.value == 11 ? "J"
                                             : "" + this.value;
         }
 
+
+
+
         public char getSuitText()
         {
             switch ( suit )
             {
+                case -1:
+                    // blind
+                    //return (char)0x1F0A0;
+                    return '?';
 
                 case 0:
                     // spades
@@ -93,7 +177,7 @@ public class Cards
                     // Hearts
                     return '\u2764';
             }
-            return '@';
+            return (char)0x1F0CF;
             // throw new RuntimeException( "Invalid suit: " + suit );
         }
 

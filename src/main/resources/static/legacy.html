@@ -9,7 +9,7 @@
 				font-family: sans-serif
 			}
 
-			#game {
+			#gameModel {
 			  display: flex;
 			  flex-direction: row;
 			  flex-wrap: nowrap;
@@ -112,7 +112,7 @@
     <script src="shithead.js"></script>
     <script src="shithead-strategy.js"></script>
     <script>
-			var game = null;
+			var gameModel = null;
 			var games = [];
 
 
@@ -205,7 +205,7 @@
 							return "(empty)";
 						}
 
-						var isNextGo = ( game.nextPlayer === player );
+						var isNextGo = ( gameModel.nextPlayer === player );
 
 
 						var playerDiv = '<div id="' + player.name + '" class="player' + ( isNextGo ? ' nextPlayer' : '' ) + '">';
@@ -232,22 +232,22 @@
 
 					refreshGame: function( ){
 
-						var update = '<div id="stack" class="pile"><p>Stack size: ' + game.stack.length + '</p>';
-						/*if ( game.stack.length > 0 )
+						var update = '<div id="stack" class="pile"><p>Stack size: ' + gameModel.stack.length + '</p>';
+						/*if ( gameModel.stack.length > 0 )
 						{
 							update += '<span class="card' + ( this.isGlyph ? ' glyph' : this.isSuitGlyph ? " suitGlyph" : '' ) + '">' + String.fromCodePoint( parseInt( "1F0A0", 16 ) ) + '</div>';
 						}*/
 						update += '</div>';
 
 						update += '<div id="discard" class="pile">';
-						update += this.formatCardSet( game.discard, "discard", "Discard" );
+						update += this.formatCardSet( gameModel.discard, "discard", "Discard" );
 						update += '</div>';
 
 
-						update += '<div id="trash" class="pile"><p>Trash size: ' + game.trash.length + '</p></div>';
+						update += '<div id="trash" class="pile"><p>Trash size: ' + gameModel.trash.length + '</p></div>';
 
 
-						var gameDiv = document.getElementById( 'game' );
+						var gameDiv = document.getElementById( 'gameModel' );
 
 						gameDiv.innerHTML = update;
 					},
@@ -256,9 +256,9 @@
 
 						var update = '';
 
-						if ( game && game.players ) {
+						if ( gameModel && gameModel.players ) {
 							var view = this;
-							game.players.forEach( function( player ){
+							gameModel.players.forEach( function( player ){
 								update += view.formatPlayer( player );
 							});
 						}
@@ -267,20 +267,20 @@
 					},
 
 					appendPlayLog: function( ){
-						if ( game ) {
-							var playLog = document.getElementById( 'game-play-log' );
+						if ( gameModel ) {
+							var playLog = document.getElementById( 'gameModel-play-log' );
 
-							playLog.innerHTML = game.lastPlay + '<hr/>' + playLog.innerHTML;
+							playLog.innerHTML = gameModel.lastPlay + '<hr/>' + playLog.innerHTML;
 						}
 					},
 
 					clearPlayLog: function( ){
-						document.getElementById( 'game-play-log' ).innerHTML = '';
+						document.getElementById( 'gameModel-play-log' ).innerHTML = '';
 					},
 
 
 					getPlayLog: function( ){
-						return document.getElementById( 'game-play-log' ).innerHTML;
+						return document.getElementById( 'gameModel-play-log' ).innerHTML;
 					},
 
 					update: function(){
@@ -295,7 +295,7 @@
 				controller: {
 
 					setPlayerAuto: function( name, autoPlay ){
-						var player = game.players.first( function( player ){ return player.name === name; });
+						var player = gameModel.players.first( function( player ){ return player.name === name; });
 
 						if ( player != null )
 						{
@@ -321,16 +321,16 @@
 						var suit = cardId.substring( 1 + cardId.indexOf( "-" ) );
 
 
-						if ( game.cardChoices )
+						if ( gameModel.cardChoices )
 						{
 							// clear any old selected values on other card sets in choices
-							game.cardChoices.forEach( function( cs ){
+							gameModel.cardChoices.forEach( function( cs ){
 								if ( cs[0].value != value ) {
 									cs.forEach( function(c){ delete c.selected; });
 								}
 							});
 
-							var cardSet = game.cardChoices.first( function( cs ){ return cs[0].value == value; } );
+							var cardSet = gameModel.cardChoices.first( function( cs ){ return cs[0].value == value; } );
 
 							if ( cardSet )
 							{
@@ -366,9 +366,9 @@
 
 
 					step: function(){
-						if ( game ) {
+						if ( gameModel ) {
 							try {
-								game.step();
+								gameModel.step();
 							} finally {
 								sh.view.update();
 							}
@@ -382,28 +382,28 @@
 
 						try {
 
-							if ( !running || !game || game.state === "finished" ) {
+							if ( !running || !gameModel || gameModel.state === "finished" ) {
 								return;
 							}
 
-							game.isRunning = true;
+							gameModel.isRunning = true;
 
 							this.step();
 
 							var controller = this;
 
-							setTimeout( function () { controller.run( game.isRunning ); }, this.runDelayMillis );
+							setTimeout( function () { controller.run( gameModel.isRunning ); }, this.runDelayMillis );
 
 						} catch ( e ) {
 
-							game.isRunning = false;
+							gameModel.isRunning = false;
 
 							log.write( "Game stopped: " + e );
 						}
 					},
 
 					stop: function( ) {
-						game.isRunning = false;
+						gameModel.isRunning = false;
 					},
 
 					runDelay: function( value ){
@@ -424,7 +424,7 @@
 
 							var gamePlayer = new Player( pd.name );
 
-							// TODO: customize the game player
+							// TODO: customize the gameModel player
 							if ( pd.prepareCards )
 							{
 								gamePlayer.prepareCards = pd.prepareCards;
@@ -440,27 +440,27 @@
 
 					loadPlayers( playersArea )
 					{
-						if ( game )
+						if ( gameModel )
 						{
-							game.players = this.createGamePlayers( eval( playersArea.value ) );
+							gameModel.players = this.createGamePlayers( eval( playersArea.value ) );
 
 							this.restartGame();
 						}
 						else
 						{
-							alert( "No game!" );
+							alert( "No gameModel!" );
 						}
 					},
 
 					loadCards( cardDataArea )
 					{
-						if ( game )
+						if ( gameModel )
 						{
 							var cardDataArray = cardDataArea.value;
 
 							var newDeck = Cards.fromData( cardDataArray );
 
-							game.cards = newDeck;
+							gameModel.cards = newDeck;
 
 							cardDataArea.value = Cards.formatCardDeck( newDeck );
 
@@ -468,7 +468,7 @@
 						}
 						else
 						{
-							alert( "No game!" );
+							alert( "No gameModel!" );
 						}
 					},
 
@@ -478,32 +478,32 @@
 						try {
 							sh.view.clearPlayLog();
 
-							game = new Game(
+							gameModel = new Game(
 								this.createGamePlayers( eval( document.getElementById( 'playerDefinitions' ).value ) ),
 							    Cards.shuffle()
 							);
 
 							// set cards text area
-							document.getElementById( "cards" ).value =  Cards.formatCardDeck( game.cards );
+							document.getElementById( "cards" ).value =  Cards.formatCardDeck( gameModel.cards );
 
 
-							game.onStart = function( game ) {
+							gameModel.onStart = function( gameModel ) {
 
 								// setup stats
 							};
 
 
-							game.onStep = function( game ) {
+							gameModel.onStep = function( gameModel ) {
 
 								// collect stats
 								// maybe refresh something
 
 							};
 
-							game.onFinish = function( game ) {
+							gameModel.onFinish = function( gameModel ) {
 
-								game.playLog = sh.view.getPlayLog();
-								games.push( game );
+								gameModel.playLog = sh.view.getPlayLog();
+								games.push( gameModel );
 
 								sh.view.update();
 
@@ -512,7 +512,7 @@
 							this.step();
 
 						} catch ( e ) {
-							alert( "Error creating game: " + e );
+							alert( "Error creating gameModel: " + e );
 
 							throw e;
 						}
@@ -523,12 +523,12 @@
 						try {
 							sh.view.clearPlayLog();
 
-							game.state = "new";
+							gameModel.state = "new";
 
 							this.step();
 
 						} catch ( e ) {
-							alert( "Error creating game: " + e );
+							alert( "Error creating gameModel: " + e );
 
 							throw e;
 						}
@@ -602,13 +602,13 @@
         [<a onclick="showHide( 'cards-area-open' ); showHide( 'cards-area-closed' );">close</a>]
         [<a onclick="sh.controller.loadCards( document.getElementById( 'cards' ) );">load</a>]
     </p>
-    <textarea class="script" id="cards" cols="20">(no game)</textarea>
+    <textarea class="script" id="cards" cols="20">(no gameModel)</textarea>
 </div>
 <hr/>
 
-<div id="game" class="game">(no game)</div>
+<div id="gameModel" class="gameModel">(no gameModel)</div>
 <div id="players" class="players">(no players)</div>
 <hr/>
-<pre id="game-play-log"></pre>
+<pre id="gameModel-play-log"></pre>
 </body>
 </html>

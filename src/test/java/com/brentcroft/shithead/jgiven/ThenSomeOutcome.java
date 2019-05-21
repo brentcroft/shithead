@@ -4,10 +4,10 @@ import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.brentcroft.shithead.AbstractGame;
-import com.brentcroft.shithead.Cards;
-import com.brentcroft.shithead.Play;
-import com.brentcroft.shithead.Player;
+import com.brentcroft.shithead.model.Discard;
+import com.brentcroft.shithead.commands.Messages;
+import com.brentcroft.shithead.model.Cards;
+import com.brentcroft.shithead.model.Player;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ScenarioState;
 
@@ -20,13 +20,13 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
     Player player;
 
     @ScenarioState
-    Play play;
+    Discard play;
 
 
     public ThenSomeOutcome cards_already_dealt_exception()
     {
         assertNotNull( actionException );
-        assertEquals( AbstractGame.CARDS_ALREADY_DEALT, actionException.getMessage() );
+        assertEquals( Messages.CARDS_ALREADY_DEALT, actionException.getMessage() );
 
         return self();
     }
@@ -44,7 +44,7 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         assertNotNull( actionException );
         assertEquals(
                 format(
-                        AbstractGame.NOT_YOUR_TURN,
+                        Messages.NOT_YOUR_TURN,
                         player ),
                 actionException.getMessage() );
 
@@ -56,9 +56,9 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         assertNotNull( actionException );
         assertEquals(
                 format(
-                        AbstractGame.INVALID_PLAY_CARDS_NOT_IN_HAND,
+                        Messages.INVALID_PLAY_CARDS_NOT_IN_HAND,
                         player,
-                        play.cards() ),
+                        play.getCards() ),
                 actionException.getMessage() );
 
         return self();
@@ -67,7 +67,7 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
     public ThenSomeOutcome cards_not_dealt_exception()
     {
         assertNotNull( actionException );
-        assertEquals( AbstractGame.CARDS_NOT_DEALT, actionException.getMessage() );
+        assertEquals( Messages.CARDS_NOT_DEALT, actionException.getMessage() );
 
         return self();
     }
