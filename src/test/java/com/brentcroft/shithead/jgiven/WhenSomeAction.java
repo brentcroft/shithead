@@ -1,18 +1,17 @@
 package com.brentcroft.shithead.jgiven;
 
 import static com.brentcroft.shithead.jgiven.CardsUtil.ANY_CARDS;
-import static com.brentcroft.shithead.jgiven.CardsUtil.CARDS_NOT_IN_HAND;
+
+import java.util.Objects;
 
 import com.brentcroft.shithead.StandardGame;
+import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
-import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 import com.tngtech.jgiven.annotation.ProvidedScenarioState;
-
-import java.util.Objects;
 
 public class WhenSomeAction extends Stage< WhenSomeAction >
 {
@@ -64,7 +63,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
     public WhenSomeAction next_player()
     {
         ga( () -> {
-            if (game.getGameModel().getCurrentPlayer() == null)
+            if ( game.getGameModel().getCurrentPlayer() == null )
             {
                 game.detectFirstPlayer();
             }
@@ -76,9 +75,9 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
 
     public WhenSomeAction plays( CardListGenerator cardsGenerator )
     {
-        if (Objects.isNull(game.getGameModel().getCurrentPlayer()))
+        if ( Objects.isNull( game.getGameModel().getCurrentPlayer() ) )
         {
-            throw new IllegalStateException("No current player");
+            throw new IllegalStateException( "No current player" );
         }
 
         ga( () -> game.playerDiscard(
@@ -102,11 +101,11 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
         return self();
     }
 
-    public WhenSomeAction plays_cards(String cardText)
+    public WhenSomeAction plays_cards( String cardText )
     {
         try
         {
-            plays( player -> Cards.fromText(cardText) );
+            plays( player -> Cards.fromText( cardText ) );
         }
         catch ( RuntimeException e )
         {

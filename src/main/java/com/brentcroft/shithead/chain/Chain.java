@@ -5,68 +5,82 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public class Chain<CONTEXT> {
+public class Chain< CONTEXT >
+{
 
-    private final List<Command<? super CONTEXT>> commands;
+    private final List< Command< ? super CONTEXT > > commands;
 
-    public Chain(List<Command<? super CONTEXT>> commands) {
-        this.commands = unmodifiableList(commands);
+    public Chain( List< Command< ? super CONTEXT > > commands )
+    {
+        this.commands = unmodifiableList( commands );
     }
 
-    public CONTEXT executeUsing(CONTEXT context) {
-        commands
-        .forEach(command -> command.action(context));
+    public CONTEXT executeUsing( CONTEXT context )
+    {
+        commands.forEach( command -> command.action( context ) );
 
         return context;
     }
 
-    public static TypeInitialiser createChain() {
+    public static TypeInitialiser createChain()
+    {
         return new TypeInitialiser();
     }
 
-    public static class TypeInitialiser {
+    public static class TypeInitialiser
+    {
 
-        public <CONTEXT> CommandInitialiser<CONTEXT> withContextType(Class<CONTEXT> contextType) {
+        public < CONTEXT > CommandInitialiser< CONTEXT > withContextType( Class< CONTEXT > contextType )
+        {
             return new CommandInitialiser<>();
         }
     }
-    
-    public static <C> CommandInitialiser<C> of(Class<C> contextType) {
-        return new CommandInitialiser<>();
+
+    public static < C > CommandInitialiser< C > of( Class< C > contextType )
+    {
+        return createChain().withContextType( contextType );
     }
 
-    public static class CommandInitialiser<CONTEXT> {
+    public static class CommandInitialiser< CONTEXT >
+    {
 
-        public Builder<CONTEXT> startingWith(Command<? super CONTEXT> firstCommand) {
-            return new Builder<>(firstCommand);
+        public Builder< CONTEXT > startingWith( Command< ? super CONTEXT > firstCommand )
+        {
+            return new Builder<>( firstCommand );
         }
-        
-        public Builder<CONTEXT> firstDo(Command<? super CONTEXT> firstCommand) {
-            return new Builder<>(firstCommand);
-        }        
+
+        public Builder< CONTEXT > firstDo( Command< ? super CONTEXT > firstCommand )
+        {
+            return startingWith( firstCommand );
+        }
     }
 
-    public static class Builder<CONTEXT> {
+    public static class Builder< CONTEXT >
+    {
 
-        private List<Command<? super CONTEXT>> commands;
+        private List< Command< ? super CONTEXT > > commands;
 
-        private Builder(Command<? super CONTEXT> firstCommand) {
+        private Builder( Command< ? super CONTEXT > firstCommand )
+        {
             commands = new ArrayList<>();
-            commands.add(firstCommand);
+            commands.add( firstCommand );
         }
 
-        public Builder<CONTEXT> andThen(Command<? super CONTEXT> command) {
-            commands.add(command);
+        public Builder< CONTEXT > andThen( Command< ? super CONTEXT > command )
+        {
+            commands.add( command );
             return this;
         }
 
-        public Builder<CONTEXT> andThen(Command<? super CONTEXT> command, Guard<? super CONTEXT> guard) {
-            commands.add(new GuardedCommand<>(command, guard));
+        public Builder< CONTEXT > andThen( Command< ? super CONTEXT > command, Guard< ? super CONTEXT > guard )
+        {
+            commands.add( new GuardedCommand<>( command, guard ) );
             return this;
         }
 
-        public Chain<CONTEXT> build() {
-            return new Chain<>(commands);
+        public Chain< CONTEXT > build()
+        {
+            return new Chain<>( commands );
         }
 
     }

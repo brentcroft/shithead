@@ -5,12 +5,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.brentcroft.shithead.StandardGame;
-import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.context.Messages;
 import com.brentcroft.shithead.model.Cards;
+import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
 import com.tngtech.jgiven.Stage;
-import com.tngtech.jgiven.annotation.ProvidedScenarioState;
 import com.tngtech.jgiven.annotation.ScenarioState;
 
 public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
@@ -79,7 +78,7 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
 
     public ThenSomeOutcome the_stack_is_empty()
     {
-        assertEquals( true, game.getGameModel().getStack().isEmpty());
+        assertEquals( true, game.getGameModel().getStack().isEmpty() );
         return self();
     }
 }

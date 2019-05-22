@@ -54,14 +54,14 @@ public class StandardGameModelFixtures extends ScenarioTest< GivenSomeState, Whe
     {
         given()
                 .a_new_game()
-                .and().a_player("aaa").with_hand_cards("[ 7♣, 7♦]")
-                .and().a_player("bbb").with_hand_cards("[ 8♣, 8♦]")
-                .and().a_player("ccc").with_hand_cards("[ 9♣, 9♦]")
+                .and().a_player( "aaa" ).with_hand_cards( "[ 7♣, 7♦]" )
+                .and().a_player( "bbb" ).with_hand_cards( "[ 8♣, 8♦]" )
+                .and().a_player( "ccc" ).with_hand_cards( "[ 9♣, 9♦]" )
                 .cards_are_dealt()
                 .first_player_detected()
-                .with_stack_cards("[ 9♣, 9♦]");
+                .with_stack_cards( "[ 9♣, 9♦]" );
 
-        when().next_player().plays_cards("[ 9♣, 9♦]");
+        when().next_player().plays_cards( "[ 9♣, 9♦]" );
 
         then().the_stack_is_empty();
     }
