@@ -1,43 +1,40 @@
 package com.brentcroft.shithead.commands;
 
-import com.brentcroft.shithead.chain.Command;
-import com.brentcroft.shithead.context.DiscardContext;
-import com.brentcroft.shithead.model.Cards.Card;
-import com.brentcroft.shithead.model.Player;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 import java.util.Stack;
 
-@Component
-public class MaybeClearTheStackCommand implements Command<DiscardContext> {
+import org.springframework.stereotype.Component;
 
-    @Autowired
-    private CommandNotifier commandNotifier;
+import com.brentcroft.shithead.chain.Command;
+import com.brentcroft.shithead.context.GameContext;
+import com.brentcroft.shithead.model.Card;
+
+@Component
+public class MaybeClearTheStack implements Command< GameContext >
+{
 
     @Override
-    public void action(DiscardContext context) {
-        playCards( context.getGameModel().getStack(), context.getPlayer(), context.getDiscard().getCards() );
-    }
-
-    protected void playCards(Stack<Card> stack, Player player, List<Card> cards )
+    public void action( GameContext context )
     {
-        if ( maybe10(stack) || maybeFourOfAKind(stack) )
+        maybeClearTheStack( context.getGameModel().getStack() );
+    }
+    
+    void maybeClearTheStack( Stack< Card > stack )
+    {
+        if ( maybe10( stack ) || maybeFourOfAKind( stack ) )
         {
-            stack.clear();
+            notifyAction( "*", "Tsshhh...", stack );
 
-            notifyPlay( player, "Tsshhh...", stack );
-       };
+            stack.clear();
+        }
     }
 
-
-    private boolean maybe10(Stack<Card> stack)
+    boolean maybe10( Stack< Card > stack )
     {
         return stack.peek().getValue() == 10;
     }
 
-    private boolean maybeFourOfAKind(Stack<Card> stack)
+
+    boolean maybeFourOfAKind( Stack< Card > stack )
     {
         Card lastCard = null;
         int numOfAKind = 0;
@@ -58,7 +55,7 @@ public class MaybeClearTheStackCommand implements Command<DiscardContext> {
 
                     if ( numOfAKind == 4 )
                     {
-                        notifyPlay( "*", "Four of a kind", "" );
+                        notifyAction( "*", "Four of a kind", "" );
                         return true;
                     }
                 }

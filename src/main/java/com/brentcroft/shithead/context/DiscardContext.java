@@ -6,16 +6,19 @@ import com.brentcroft.shithead.model.Player;
 import lombok.Getter;
 
 @Getter
-public class DiscardContext extends PlayerContext{
+public class DiscardContext extends PlayerContext
+{
     private final Discard discard;
     private boolean valid;
-    public DiscardContext(GameModel gameModel, Player player, Discard discard)
+
+    public DiscardContext( GameModel gameModel, Player player, Discard discard )
     {
-        super(gameModel, player);
+        super( gameModel, player );
         this.discard = discard;
     }
 
-    public void setValid(boolean valid) {
+    public void setValid( boolean valid )
+    {
         this.valid = valid;
     }
 }

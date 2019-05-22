@@ -1,6 +1,7 @@
-package com.brentcroft.shithead.commands;
+package com.brentcroft.shithead.context;
 
-public interface Messages {
+public interface Messages
+{
 
     String CARDS_ALREADY_DEALT = "Cards already dealt";
 
@@ -16,4 +17,10 @@ public interface Messages {
 
     String FIRST_PLAYER_NOT_SELECTED = "First player not selected";
     String CURRENT_PLAYER_ALREADY_EXISTS = "Current player already exists";
+    String NO_FIRST_PLAYER = "No first player";
+    
+    String PLAYER_COULD_HAVE_PLAYED = "Player could have played";
+    
+    String DISCARD_NOT_IN_FACEUP = "Discard not in faceup";
+    String DISCARD_NOT_IN_BLIND = "Discard not in blind";
 }

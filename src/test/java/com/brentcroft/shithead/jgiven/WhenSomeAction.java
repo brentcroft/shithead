@@ -4,12 +4,15 @@ import static com.brentcroft.shithead.jgiven.CardsUtil.ANY_CARDS;
 import static com.brentcroft.shithead.jgiven.CardsUtil.CARDS_NOT_IN_HAND;
 
 import com.brentcroft.shithead.StandardGame;
+import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
 import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 import com.tngtech.jgiven.annotation.ProvidedScenarioState;
+
+import java.util.Objects;
 
 public class WhenSomeAction extends Stage< WhenSomeAction >
 {
@@ -53,7 +56,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
 
     public WhenSomeAction deal_cards()
     {
-        ga( () -> game.deal() );
+        ga( () -> game.dealCards() );
         return self();
     }
 
@@ -73,7 +76,12 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
 
     public WhenSomeAction plays( CardListGenerator cardsGenerator )
     {
-        ga( () -> game.play(
+        if (Objects.isNull(game.getGameModel().getCurrentPlayer()))
+        {
+            throw new IllegalStateException("No current player");
+        }
+
+        ga( () -> game.playerDiscard(
                 new Discard(
                         game.getGameModel().getCurrentPlayer().getName(),
                         cardsGenerator.cards( game.getGameModel().getCurrentPlayer() ) ) ) );
@@ -94,11 +102,11 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
         return self();
     }
 
-    public WhenSomeAction plays_cards_not_in_hand()
+    public WhenSomeAction plays_cards(String cardText)
     {
         try
         {
-            plays( CARDS_NOT_IN_HAND );
+            plays( player -> Cards.fromText(cardText) );
         }
         catch ( RuntimeException e )
         {

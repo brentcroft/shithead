@@ -1,127 +1,54 @@
 package com.brentcroft.shithead;
 
-import com.brentcroft.shithead.chain.Chain;
-import com.brentcroft.shithead.commands.*;
 import com.brentcroft.shithead.context.DiscardContext;
 import com.brentcroft.shithead.context.GameContext;
 import com.brentcroft.shithead.context.PlayerContext;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.GameModel;
+import com.brentcroft.shithead.model.GamePlay;
 import com.brentcroft.shithead.model.Player;
+
 import lombok.Getter;
 
-import static com.brentcroft.shithead.chain.Guards.onlyIf;
-
-public class StandardGame {
-
-    @Getter
+@Getter
+public class StandardGame implements GamePlay
+{
     private final GameModel gameModel = new GameModel();
 
-
-    private final Chain<PlayerContext> addPlayerContext = Chain
-            .createChain()
-            .withContextType(PlayerContext.class)
-            .startingWith(new AddPlayerCommand())
-            .build();
-
-
-    private final Chain<GameContext> dealContext = Chain
-            .createChain()
-            .withContextType(GameContext.class)
-            .startingWith(new DealCommand())
-            .build();
-
-    private final Chain<GameContext> firstPlayerContext = Chain
-            .createChain()
-            .withContextType(GameContext.class)
-            .startingWith(new DetectFirstPlayerCommand())
-            .build();
-
-
-    private final Chain<DiscardContext> checkPlayerAndCards = Chain
-            .createChain()
-            .withContextType(DiscardContext.class)
-            .startingWith(new CheckPlayerCardsCommand())
-            .andThen(new CheckDiscardCommand())
-            .build();
-
-    private final Chain<DiscardContext> playerDiscardsAndTopsUp = Chain
-            .createChain()
-            .withContextType(DiscardContext.class)
-            .startingWith(new ElectFaceupCardsCommand())
-            .andThen(new DiscardCommand())
-            .andThen(new MaybeClearTheStackCommand())
-            .andThen(new TopUpCardsCommand())
-            .andThen(new ChooseNextPlayerCommand(), onlyIf(c -> !c.getGameModel().getStack().isEmpty()))
-            .build();
-
-    private final Chain<DiscardContext> playerPicksUpStack = Chain
-            .createChain()
-            .withContextType(DiscardContext.class)
-            .startingWith(new PickUpTheStackCommand())
-            .andThen(new ChoosePreviousPlayerCommand())
-            .build();
-
-    private final Chain<DiscardContext> finishChain = Chain
-            .createChain()
-            .withContextType(DiscardContext.class)
-            .startingWith(new MaybeRemoveFinishedPlayerCommand())
-            .andThen(new CheckGameFinishedCommand())
-            .build();
-
-
-
-    public void addPlayer(Player player) {
-        addPlayerContext.executeUsing(new PlayerContext(gameModel, player));
+    public void addPlayer( Player player )
+    {
+        ADD_PLAYER.executeUsing( new PlayerContext( gameModel, player ) );
     }
-
+    
+    public void dealCards()
+    {
+        DEAL.executeUsing( new GameContext( gameModel ) );
+    }
 
     public void detectFirstPlayer()
     {
-        firstPlayerContext.executeUsing(new GameContext(gameModel));
+        FIRST_PLAYER.executeUsing( new GameContext( gameModel ) );
     }
 
-    public void deal()
+
+    public void playerDiscard( Discard discard )
     {
-        dealContext.executeUsing(new GameContext(gameModel));
-    }
+        DiscardContext context = new DiscardContext(
+                gameModel,
+                gameModel.getPlayer( discard.getPlayerName() ),
+                discard );
 
-    public void play(Discard discard) {
+        CHECK_PLAYER_AND_CARDS.executeUsing( context );
 
-        DiscardContext context = new DiscardContext(gameModel, gameModel.getPlayer(discard.getPlayerName()), discard);
-
-        checkPlayerAndCards.executeUsing(context);
-
-        if (context.isValid()) {
-
-            playerDiscardsAndTopsUp.executeUsing(context);
-
-        } else {
-
-            playerPicksUpStack.executeUsing(context);
-
+        if ( context.isValid() )
+        {
+            PLAYER_DISCARDS_AND_TOPS_UP.executeUsing( context );
+        }
+        else
+        {
+            PLAYER_PICKS_UP_STACK.executeUsing( context );
         }
 
-        finishChain.executeUsing(context);
+        PLAYER_ENDS_TURN.executeUsing( context );
     }
-
-
-    public void play() {
-        try {
-            while (gameModel.getPlayers().size() > 0) {
-
-                Player player = gameModel.getCurrentPlayer();
-
-                Discard discard = new Discard(
-                        player.getName(),
-                        player.chooseCards(gameModel.getSelector())
-                );
-
-                play(discard);
-            }
-        } catch (ShitheadException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
 }

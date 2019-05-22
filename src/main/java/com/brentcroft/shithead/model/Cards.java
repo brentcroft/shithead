@@ -70,7 +70,7 @@ public class Cards
             case "J": return 11;
 
             default:
-                return Integer.valueOf(text);
+                return Integer.valueOf(text.trim());
         }
     }
 
@@ -109,84 +109,6 @@ public class Cards
     }
 
 
-
-
-    @Getter
-    public static class Card
-    {
-        private final int value;
-        private final int suit;
-
-        public Card( int i )
-        {
-            this(
-                    i < 0 ? -1 : 1 + ( i % SUIT_SIZE ),
-                    i < 0 ? -1 : i / SUIT_SIZE );
-        }
-
-        public Card(int value,int suit)
-        {
-            this.value = value;
-            this.suit = suit;
-        }
-
-
-        public int getScore()
-        {
-            return value == 1
-                    ? 14
-                    : value == 2
-                            ? 15
-                            : value == 10
-                                    ? 16
-                                    : value;
-        }
-
-        public String getValueText()
-        {
-            return value < 0 ? "?"
-                : value == 1 ? "A"
-                    : this.value == 13 ? "K"
-                            : this.value == 12 ? "Q"
-                                    : this.value == 11 ? "J"
-                                            : "" + this.value;
-        }
-
-
-
-
-        public char getSuitText()
-        {
-            switch ( suit )
-            {
-                case -1:
-                    // blind
-                    //return (char)0x1F0A0;
-                    return '?';
-
-                case 0:
-                    // spades
-                    return '\u2660';
-                case 1:
-                    // Diamonds
-                    return '\u2666';
-                case 2:
-                    // Clubs
-                    return '\u2663';
-                case 3:
-                    // Hearts
-                    return '\u2764';
-            }
-            return (char)0x1F0CF;
-            // throw new RuntimeException( "Invalid suit: " + suit );
-        }
-
-
-        public String toString()
-        {
-            return format( "%s%s", getValueText(), getSuitText() );
-        }
-    }
 
 
     private final Stack< Card > cards;

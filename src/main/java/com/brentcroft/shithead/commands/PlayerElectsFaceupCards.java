@@ -1,25 +1,29 @@
 package com.brentcroft.shithead.commands;
 
-import com.brentcroft.shithead.model.Discard;
-import com.brentcroft.shithead.chain.Command;
-import com.brentcroft.shithead.context.DiscardContext;
-import com.brentcroft.shithead.model.Player;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.brentcroft.shithead.context.Messages.DISCARD_NOT_IN_BLIND;
+import static com.brentcroft.shithead.context.Messages.DISCARD_NOT_IN_FACEUP;
+
 import org.springframework.stereotype.Component;
 
-@Component
-public class ElectFaceupCardsCommand implements Command<DiscardContext> {
+import com.brentcroft.shithead.chain.Command;
+import com.brentcroft.shithead.context.DiscardContext;
+import com.brentcroft.shithead.model.Discard;
+import com.brentcroft.shithead.model.Player;
 
-    @Autowired
-    private CommandNotifier commandNotifier;
+@Component
+public class PlayerElectsFaceupCards implements Command< DiscardContext >
+{
 
     @Override
-    public void action(DiscardContext context) {
-        electFaceupCards(context.getPlayer(), context.getDiscard() );
+    public void action( DiscardContext context )
+    {
+        electFaceupCards( context.getPlayer(), context.getDiscard() );
     }
 
 
-    protected void electFaceupCards(Player player, Discard discard )
+    // TODO: get the rules right
+    void electFaceupCards( Player player, Discard discard )
     {
         if ( player.hasCardsInHand() )
         {
@@ -33,7 +37,7 @@ public class ElectFaceupCardsCommand implements Command<DiscardContext> {
             }
             else
             {
-                throw new RuntimeException( "Discard cards not in faceup" );
+                throw new RuntimeException( DISCARD_NOT_IN_FACEUP);
             }
         }
         else
@@ -44,7 +48,7 @@ public class ElectFaceupCardsCommand implements Command<DiscardContext> {
             }
             else
             {
-                throw new RuntimeException( "Discard cards not in blind" );
+                throw new RuntimeException( DISCARD_NOT_IN_BLIND );
             }
         }
 

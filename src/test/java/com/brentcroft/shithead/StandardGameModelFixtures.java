@@ -15,8 +15,8 @@ public class StandardGameModelFixtures extends ScenarioTest< GivenSomeState, Whe
         given().a_new_game().with_six_players();
         when().deal_cards();
         then().no_more_cards_exception();
-    }    
-    
+    }
+
     @Test
     public void cannot_deal_twice()
     {
@@ -46,5 +46,23 @@ public class StandardGameModelFixtures extends ScenarioTest< GivenSomeState, Whe
     public void play()
     {
         given().a_dealt_3_player_game().first_player_detected().after_playing_turns( 5 );
+    }
+
+
+    @Test( )
+    public void four_of_a_kind_detected_during_rollover()
+    {
+        given()
+                .a_new_game()
+                .and().a_player("aaa").with_hand_cards("[ 7♣, 7♦]")
+                .and().a_player("bbb").with_hand_cards("[ 8♣, 8♦]")
+                .and().a_player("ccc").with_hand_cards("[ 9♣, 9♦]")
+                .cards_are_dealt()
+                .first_player_detected()
+                .with_stack_cards("[ 9♣, 9♦]");
+
+        when().next_player().plays_cards("[ 9♣, 9♦]");
+
+        then().the_stack_is_empty();
     }
 }

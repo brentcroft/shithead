@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.brentcroft.shithead.model.Cards.Card;
-
 import lombok.Getter;
 
 @Getter
@@ -96,10 +94,9 @@ public class Player
 
     public boolean hasCards( ROW row, List< Card > cards )
     {
-        return getCards( row )
+        return cards
                 .stream()
-                .anyMatch( cards::contains );
-
+                .anyMatch( card->hasCard(row, card.value ) );
     }
 
 

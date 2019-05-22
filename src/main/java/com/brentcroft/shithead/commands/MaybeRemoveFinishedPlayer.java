@@ -1,28 +1,26 @@
 package com.brentcroft.shithead.commands;
 
+import org.springframework.stereotype.Component;
+
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.PlayerContext;
 import com.brentcroft.shithead.model.GameModel;
 import com.brentcroft.shithead.model.Player;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 
 @Component
-public class MaybeRemoveFinishedPlayerCommand implements Command<PlayerContext> {
-
-    @Autowired
-    private CommandNotifier commandNotifier;
+public class MaybeRemoveFinishedPlayer implements Command< PlayerContext >
+{
 
     @Override
-    public void action(PlayerContext context) {
+    public void action( PlayerContext context )
+    {
         removeFinishedPlayer(
                 context.getGameModel(),
                 context.getPlayer() );
     }
 
-
-    protected void removeFinishedPlayer(GameModel gameModel, Player player )
+    void removeFinishedPlayer( GameModel gameModel, Player player )
     {
         if ( !player.hasCards() )
         {
@@ -30,8 +28,7 @@ public class MaybeRemoveFinishedPlayerCommand implements Command<PlayerContext> 
 
             gameModel.getLastPlayer().pop();
 
-            notifyPlay( player, "finished", gameModel.getPlayers().size() );
+            notifyAction( player, "has finished", gameModel.getPlayers().size() );
         }
     }
-
 }

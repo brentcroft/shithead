@@ -30,12 +30,20 @@ public class Chain<CONTEXT> {
             return new CommandInitialiser<>();
         }
     }
+    
+    public static <C> CommandInitialiser<C> of(Class<C> contextType) {
+        return new CommandInitialiser<>();
+    }
 
     public static class CommandInitialiser<CONTEXT> {
 
         public Builder<CONTEXT> startingWith(Command<? super CONTEXT> firstCommand) {
             return new Builder<>(firstCommand);
         }
+        
+        public Builder<CONTEXT> firstDo(Command<? super CONTEXT> firstCommand) {
+            return new Builder<>(firstCommand);
+        }        
     }
 
     public static class Builder<CONTEXT> {

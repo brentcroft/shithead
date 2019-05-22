@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import com.brentcroft.shithead.jgiven.CardsUtil;
-import com.brentcroft.shithead.model.GameModel;
-import com.brentcroft.shithead.model.Player;
 import org.junit.Test;
+
+import com.brentcroft.shithead.commands.ShitheadException;
+import com.brentcroft.shithead.jgiven.CardsUtil;
+import com.brentcroft.shithead.model.Discard;
+import com.brentcroft.shithead.model.Player;
 
 public class StandardGameTest
 {
@@ -20,9 +22,31 @@ public class StandardGameTest
 
         players.forEach( game::addPlayer );
 
-        game.deal();
+        game.dealCards();
         game.detectFirstPlayer();
-        game.play();
+      
+        
+        try
+        {
+            while ( true )
+            {
+
+                Player player = game.getGameModel().getCurrentPlayer();
+
+                Discard discard = new Discard(
+                        player.getName(),
+                        player.chooseCards( game.getGameModel().getSelector() ) );
+
+                game.playerDiscard( discard );
+            }
+        }
+        catch ( ShitheadException e )
+        {
+            System.out.println( e.getMessage() );
+        }        
+        
+        
+        
 
         assertEquals( 1, game.getGameModel().getPlayers().size() );
     }

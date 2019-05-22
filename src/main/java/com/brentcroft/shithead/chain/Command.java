@@ -6,8 +6,8 @@ public interface Command<CONTEXT> {
 
     void action(CONTEXT context);
 
-    default void notifyPlay(Object player, Object action, Object cards )
+    default void notifyAction(Object subject, Object action, Object context )
     {
-        System.out.println( format( "[%-8s] %-15s %s", player == null ? "*" : player, action, cards ) );
+        System.out.println( format( "[%-8s] %-15s %s", subject == null ? "*" : subject, action, context ) );
     }
 }
