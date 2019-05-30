@@ -9,24 +9,21 @@ import lombok.Getter;
 public class Discard
 {
     private final String playerName;
-    private final List< Card > cards;
+    private final CardList cards;
 
-    public Discard( String playerName, List< Card > cards )
+    public Discard( String playerName, CardList cards )
     {
         this.playerName = playerName;
-        this.cards = new ArrayList<>();
-        this.cards.addAll( cards );
+        this.cards = cards;
     }
 
     public Discard( String playerName, String cardsText )
     {
         this.playerName = playerName;
-        this.cards = new ArrayList<>();
-        this.cards.addAll( Cards.fromText( cardsText ) );
+        this.cards = CardList.of(cardsText);
     }
 
-    public String toText()
-    {
-        return Cards.toText( cards );
+    public boolean rolloverOnPickup() {
+        return true;
     }
 }

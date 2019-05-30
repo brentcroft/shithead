@@ -11,6 +11,7 @@ import java.util.List;
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.DiscardContext;
 import com.brentcroft.shithead.model.Card;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Player;
 
 public class CheckPlayerCards implements Command< DiscardContext >
@@ -21,7 +22,7 @@ public class CheckPlayerCards implements Command< DiscardContext >
         checkPlayerCards( context.getPlayer(), context.getDiscard().getCards() );
     }
 
-    void checkPlayerCards( Player player, List< Card > cards )
+    void checkPlayerCards( Player player, CardList cards )
     {
         if ( cards.isEmpty() )
         {

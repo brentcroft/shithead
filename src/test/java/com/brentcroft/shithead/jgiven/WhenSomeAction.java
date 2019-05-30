@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.brentcroft.shithead.StandardGame;
 import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
@@ -105,7 +106,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
     {
         try
         {
-            plays( player -> Cards.fromText( cardText ) );
+            plays( player -> CardList.of( cardText ) );
         }
         catch ( RuntimeException e )
         {

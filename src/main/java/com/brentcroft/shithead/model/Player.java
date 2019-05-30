@@ -1,5 +1,6 @@
 package com.brentcroft.shithead.model;
 
+import static com.brentcroft.shithead.context.Messages.CARD_NOT_IN_CURRENT_ROW;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
@@ -13,6 +14,7 @@ import lombok.Getter;
 @Getter
 public class Player
 {
+
     public enum ROW
     {
         BLIND, FACEUP, HAND;
@@ -25,9 +27,9 @@ public class Player
 
 
     private String name;
-    private ArrayList< Card > blindCards = new ArrayList<>();
-    private ArrayList< Card > faceUpCards = new ArrayList<>();
-    private ArrayList< Card > handCards = new ArrayList<>();
+    private CardList blindCards = new CardList();
+    private CardList faceUpCards = new CardList();
+    private CardList handCards = new CardList();
 
     public Player( String name )
     {
@@ -39,7 +41,7 @@ public class Player
         return format( "%s", name );
     }
 
-    public static String joinCards(List< Card > cards)
+    public static String joinCards(CardList cards)
     {
         return "[ " + cards.stream().map( Object::toString ).collect( joining( ", " ) ) + " ]";
     }
@@ -54,7 +56,7 @@ public class Player
 
 
 
-    private ArrayList< Card > getCards( ROW row )
+    private CardList getCards( ROW row )
     {
         switch ( row )
         {
@@ -92,11 +94,11 @@ public class Player
 
     }
 
-    public boolean hasCards( ROW row, List< Card > cards )
+    public boolean hasCards( ROW row, CardList cards )
     {
         return cards
                 .stream()
-                .anyMatch( card->hasCard(row, card.value ) );
+                .anyMatch( card->hasCard(row, card.getValue() ) );
     }
 
 
@@ -110,14 +112,14 @@ public class Player
         return getCards( row ).size();
     }
 
-    public Card getCard( ROW row, int i )
-    {
-        return getCards( row ).get( i );
-    }
-
     public boolean playCard( Card card )
     {
-        return handCards.remove( card );
+        return handCards
+                .remove( handCards
+                    .stream()
+                    .filter(c->c.equals(card))
+                    .findFirst()
+                    .orElse(null) );
     }
 
     public boolean hasCardsInHand()
@@ -141,7 +143,7 @@ public class Player
                                 : null;
     }
 
-    public List< Card > chooseCards( Predicate<Card> selector )
+    public CardList chooseCards( Predicate<Card> selector )
     {
         ROW currentRow = currentRow();
 
@@ -150,84 +152,70 @@ public class Player
             throw new RuntimeException( "Current row is null: " + this );
         }
 
-        List< Card > choices = null;
         switch ( currentRow )
         {
             case BLIND:
-                return Collections.singletonList(getCards(currentRow).get(0));
-
-
-            case HAND:
-                List< Card > cardsInCurrentRow = getCards( ROW.HAND );
-                choices = cardsInCurrentRow
-                        .stream()
-                        .filter(selector)
-                        .collect( Collectors.toList() );
-
-                if ( choices.size() == cardsInCurrentRow.size() )
-                {
-                    Card choiceOne = choices.get( 0 );
-                    
-                    List< Card > electees = getCards( ROW.FACEUP )
-                            .stream()
-                            .filter( f -> f.getValue() == choiceOne.getValue() )
-                            .collect( Collectors.toList() );
-
-                    if ( !electees.isEmpty() )
-                    {
-                        choices = new ArrayList<>( choices );
-                        choices.addAll( electees );
-                    }
-                }
-                break;
+                return CardList.of(getCards(currentRow).get(0));
 
             default:
-                choices = getCards( currentRow )
+                return  CardList.of( getCards( currentRow )
                         .stream()
                         .filter( selector )
-                        .collect( Collectors.toList() );
-
+                        .collect( Collectors.toList() ) );
         }
-
-        if ( choices.size() == 0 )
-        {
-            // we know we're going to pick up
-            // if current row is faceup
-            // then these will be elected to the hand
-
-            choices = getCards( currentRow );
-        }
-
-        Card minCard = choices
-                .stream()
-                .min(Comparator.comparingInt(Card::getScore))
-                .orElse( null );
-
-        if ( minCard == null )
-        {
-            throw new RuntimeException( "No min card: " + choices + "\n   " + currentRow + "\n" + this );
-        }
-
-        return choices
-                .stream()
-                .filter( card -> card.getValue() == minCard.getValue() )
-                .collect( Collectors.toList() );
     }
 
-    public void electCards( List< Card > cards )
+    public void electCards( CardList cards )
     {
-        ArrayList< Card > choices = getCards( currentRow() );
+        ROW currentRow = currentRow();
+
+        CardList choices = getCards( currentRow );
 
         cards
                 .forEach( card -> {
-                    if ( choices.remove( card ) )
+                    if ( choices.remove( choices
+                            .stream()
+                            .filter(c->c.equals(card))
+                            .findFirst()
+                            .orElse(null) ) )
                     {
                         handCards.add( card );
                     }
                     else
                     {
-                        throw new RuntimeException( "Card not in current row" );
+                        throw new RuntimeException( format(CARD_NOT_IN_CURRENT_ROW, card,  currentRow ) );
                     }
                 } );
     }
+
+
+
+
+
+    /*
+        how valuable is the card - I suppose depends on context
+    */
+    public static int cardScore(Card card)
+    {
+        int BASE_SCORE = 14;
+
+        switch ( card.getValue() )
+        {
+            case 1:
+                return BASE_SCORE;
+
+            case 2:
+                return BASE_SCORE + 1;
+
+            case 3:
+                return BASE_SCORE + 2;
+
+            case 10:
+                return BASE_SCORE + 3;
+
+            default:
+                return card.getValue();
+        }
+    }
+
 }

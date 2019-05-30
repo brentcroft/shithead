@@ -47,10 +47,15 @@ public interface GamePlay
             .andThen( new CheckPlayerDiscard() )
             .build();
 
-    Chain< DiscardContext > PLAYER_DISCARDS_AND_TOPS_UP = Chain.of( DiscardContext.class )
+    Chain< DiscardContext > PLAYER_DISCARDS = Chain.of( DiscardContext.class )
             .firstDo( new PlayerElectsFaceupCards() )
             .andThen( new PlayerDiscards() )
-            .andThen( new MaybeClearTheStack() )
+            .build();
+
+
+
+    Chain< DiscardContext > PLAYER_TOPS_UP = Chain.of( DiscardContext.class )
+            .firstDo( new MaybeClearTheStack() )
             .andThen( new PlayerTopsUpCards() )
             .andThen( context -> {
 

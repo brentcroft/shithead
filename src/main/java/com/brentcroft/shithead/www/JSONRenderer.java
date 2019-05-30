@@ -1,9 +1,7 @@
 package com.brentcroft.shithead.www;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import com.brentcroft.shithead.model.Card;
 import com.brentcroft.shithead.model.Cards;
@@ -12,15 +10,17 @@ import com.brentcroft.shithead.model.Player;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+
 public class JSONRenderer
 {
 
-    public static String render( Object game )
+    public static String render(Object game )
     {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule(
@@ -29,6 +29,9 @@ public class JSONRenderer
         module.addSerializer( GameModel.class, new GameSerializer() );
         module.addSerializer( Player.class, new PlayerSerializer() );
         module.addSerializer( Card.class, new CardSerializer() );
+
+        //
+        objectMapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
 
         objectMapper.registerModule( module );
         try
@@ -91,7 +94,19 @@ public class JSONRenderer
         {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeObjectField( "deck", gameModel.getDeck() );
-            jsonGenerator.writeObjectField( "cards", stackTop( gameModel.getStack() ) );
+            jsonGenerator.writeObjectField( "stack", gameModel.getStack() );
+
+            jsonGenerator.writeNumberField("turnNo", gameModel.getLastPlayer().size() );
+
+            if (Objects.nonNull(gameModel.getCurrentPlayer()))
+            {
+                jsonGenerator.writeStringField("nextPlayer", gameModel.getCurrentPlayer().getName());
+            }
+            if ( !gameModel.getLastPlayer().isEmpty())
+            {
+                jsonGenerator.writeStringField("lastPlayer", gameModel.getLastPlayer().peek().getName());
+            }
+
             jsonGenerator.writeArrayFieldStart( "players" );
 
             gameModel

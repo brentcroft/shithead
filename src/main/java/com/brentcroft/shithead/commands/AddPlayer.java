@@ -2,6 +2,7 @@ package com.brentcroft.shithead.commands;
 
 import static com.brentcroft.shithead.context.Messages.CARDS_ALREADY_DEALT;
 import static com.brentcroft.shithead.context.Messages.PLAYER_ALREADY_EXISTS;
+import static java.lang.String.format;
 
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.PlayerContext;
@@ -24,7 +25,7 @@ public class AddPlayer implements Command< PlayerContext >
         }
         else if ( gameModel.hasPlayer( player.getName() ) )
         {
-            throw new RuntimeException( PLAYER_ALREADY_EXISTS );
+            throw new RuntimeException( format(PLAYER_ALREADY_EXISTS, player.getName() ) );
         }
 
         gameModel.getPlayers().add( player );

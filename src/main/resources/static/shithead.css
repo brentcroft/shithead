@@ -1,0 +1,103 @@
+body, div, p, pre, textarea, input {
+    margin: 5px;
+    font-size: 100%;
+    font-family: sans-serif
+}
+
+#gameModel {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+
+#players {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+
+.script {
+    font-size: 80%;
+    width: 80%;
+    height: 100pt;
+}
+
+.pile {
+    width: 30%;
+    border: 1pt dashed;
+}
+
+.player {
+    width: 30%;
+    border: 1pt solid;
+}
+
+.playerDetails {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+
+.cardSet {
+    border: 1pt dotted;
+}
+
+.glyph {
+    border: 0pt solid;
+    font-size: 600%;
+}
+.suitGlyph {
+    font-size: 200%;
+}
+
+
+.card {
+    border: 1pt solid;
+    border-radius: 5px;
+}
+
+.topDiscard {
+    border: 2pt solid green;
+}
+
+.selectable_1 {
+    border: 2pt dashed #CF0000;
+}
+.selectable_2 {
+    border: 2pt dotted #AF0000;
+}
+.selectable_3 {
+    border: 2pt dotted #8F0000;
+}
+.selectable_4 {
+    border: 2pt dotted;
+}
+.selectable_5 {
+    border: 2pt dotted #4F0000;
+}
+.selectable_6 {
+    border: 2pt dotted #2F0000;
+}
+.selectable_7 {
+    border: 2pt dotted #0F0000;
+}
+.selectable_8 {
+    border: 2pt dotted;
+}
+.selectable_9 {
+    border: 2pt dotted;
+}
+.selectable_10 {
+    border: 2pt dotted;
+}
+
+.selected {
+    border: 2pt solid blue;
+}
+
+.nextPlayer {
+    border: 5pt solid green;
+}

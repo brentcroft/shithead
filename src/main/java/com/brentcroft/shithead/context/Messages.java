@@ -3,11 +3,17 @@ package com.brentcroft.shithead.context;
 public interface Messages
 {
 
+
+    String NO_MORE_CARDS = "No more cards";
+
     String CARDS_ALREADY_DEALT = "Cards already dealt";
+    String NOT_ENOUGH_PLAYERS = "Not enough players";
 
 
     String CARDS_NOT_DEALT = "Cards not dealt";
-    String PLAYER_ALREADY_EXISTS = "PLAYER_ALREADY_EXISTS";
+    String PLAYER_ALREADY_EXISTS = "Player already exists: %s";
+
+    String CARD_NOT_IN_CURRENT_ROW = "Card [%s] not in current row: %s";
 
     String NOT_YOUR_TURN = "Not your turn";
     String INVALID_PLAY_NO_CARDS = "Invalid play, no cards";
@@ -19,7 +25,7 @@ public interface Messages
     String CURRENT_PLAYER_ALREADY_EXISTS = "Current player already exists";
     String NO_FIRST_PLAYER = "No first player";
     
-    String PLAYER_COULD_HAVE_PLAYED = "Player could have played";
+    String PLAYER_COULD_HAVE_PLAYED = "Player could have played: %s %s %s";
     
     String DISCARD_NOT_IN_FACEUP = "Discard not in faceup";
     String DISCARD_NOT_IN_BLIND = "Discard not in blind";

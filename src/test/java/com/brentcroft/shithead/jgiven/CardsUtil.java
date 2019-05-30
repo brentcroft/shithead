@@ -4,9 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import com.brentcroft.shithead.model.Card;
-import com.brentcroft.shithead.model.Cards;
-import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.model.*;
 import com.brentcroft.shithead.model.Player.ROW;
 
 public class CardsUtil
@@ -15,16 +13,16 @@ public class CardsUtil
 
     public interface CardListGenerator
     {
-        List< Card > cards( Player player );
+        CardList cards( Player player );
     }
 
 
     public static final CardListGenerator ANY_CARDS = new CardListGenerator()
     {
         @Override
-        public List< Card > cards( Player player )
+        public CardList cards( Player player )
         {
-            return Arrays.asList( Cards.newCard( new Random().nextInt( Cards.NUM_CARDS ) ) );
+            return CardList.of( Cards.newCard( new Random().nextInt( Rules.NUM_CARDS ) ) );
         }
     };
 
@@ -33,7 +31,7 @@ public class CardsUtil
     {
 
         @Override
-        public List< Card > cards( Player player )
+        public CardList cards(Player player )
         {
             CardListGenerator any = ANY_CARDS;
 

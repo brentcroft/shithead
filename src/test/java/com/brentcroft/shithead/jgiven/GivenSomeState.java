@@ -5,6 +5,7 @@ import static com.brentcroft.shithead.jgiven.CardsUtil.PLAYERS;
 import java.util.stream.IntStream;
 
 import com.brentcroft.shithead.StandardGame;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
@@ -29,19 +30,15 @@ public class GivenSomeState extends Stage< GivenSomeState >
         return self();
     }
 
-    public GivenSomeState with_three_players()
-    {
-        PLAYERS
-                .getPlayers( 3 )
-                .forEach( player -> game.addPlayer( player ) );
+    public GivenSomeState with_min_players(int i) {
+        game.getGameModel().setMinPlayers(i);
         return self();
     }
 
 
-    public GivenSomeState with_six_players()
-    {
+    public GivenSomeState with_players(int i) {
         PLAYERS
-                .getPlayers( 6 )
+                .getPlayers( i )
                 .forEach( player -> game.addPlayer( player ) );
         return self();
     }
@@ -50,6 +47,9 @@ public class GivenSomeState extends Stage< GivenSomeState >
     public GivenSomeState first_player_detected()
     {
         game.detectFirstPlayer();
+
+        player = game.getGameModel().getCurrentPlayer();
+
         return self();
     }
 
@@ -63,17 +63,28 @@ public class GivenSomeState extends Stage< GivenSomeState >
     {
         IntStream
                 .range( 0, turns )
-                .forEach( turn -> game.playerDiscard(
-                        new Discard(
-                                game.getGameModel().getCurrentPlayer().getName(),
-                                game.getGameModel().getCurrentPlayer()
-                                        .chooseCards( game.getGameModel().getSelector() ) ) ) );
+                .forEach( turn -> {
+
+                    Player player = game.getGameModel().getCurrentPlayer();
+                    CardList cards = player.chooseCards( game.getGameModel().getSelector() );
+
+                    if ( cards.size() == 0)
+                    {
+                        cards = CardList.of(player.getHandCards().get(0));
+                    }
+
+                    game.playerDiscard(
+                            new Discard(
+                                    player.getName(),
+                                    CardList.of( cards.get(0) )
+                            ) ) ;
+                } );
         return self();
     }
 
     public GivenSomeState a_dealt_3_player_game()
     {
-        a_new_game().with_three_players().and().cards_are_dealt();
+        a_new_game().with_players(3).and().cards_are_dealt();
         return self();
     }
 
@@ -98,20 +109,67 @@ public class GivenSomeState extends Stage< GivenSomeState >
         return self();
     }
 
-    public GivenSomeState with_hand_cards( String cardText )
+
+    public GivenSomeState with_stack_cards( String cardText )
     {
-        Cards
-                .fromText( cardText )
-                .forEach( card -> player.addCard( Player.ROW.HAND, card ) );
+        CardList.of( cardText )
+                .forEach( card -> game.getGameModel().getStack().push( card ) );
 
         return self();
     }
 
-    public GivenSomeState with_stack_cards( String cardText )
+    public GivenSomeState with_empty_hand_cards() {
+
+        player.getHandCards().clear();
+
+        return self();
+    }
+
+    public GivenSomeState with_hand_cards( String cardText )
     {
-        Cards
-                .fromText( cardText )
-                .forEach( card -> game.getGameModel().getStack().push( card ) );
+        with_empty_hand_cards();
+
+        if ( cardText != null ) {
+            CardList.of(cardText)
+                    .forEach(card -> player.addCard(Player.ROW.HAND, card));
+        }
+
+        return self();
+    }
+
+
+    public GivenSomeState with_empty_faceup_cards() {
+
+        player.getFaceUpCards().clear();
+
+        return self();
+    }
+
+    public GivenSomeState with_faceup_Cards(String cardText) {
+        with_empty_faceup_cards();
+
+        if ( cardText != null ) {
+            CardList.of(cardText)
+                    .forEach(card -> player.addCard(Player.ROW.FACEUP, card));
+        }
+
+        return self();
+    }
+
+    public GivenSomeState with_empty_blind_cards() {
+
+        player.getBlindCards().clear();
+
+        return self();
+    }
+
+    public GivenSomeState with_blind_Cards(String cardText) {
+        with_empty_blind_cards();
+
+        if ( cardText != null ) {
+            CardList.of(cardText)
+                    .forEach(card -> player.addCard(Player.ROW.BLIND, card));
+        }
 
         return self();
     }

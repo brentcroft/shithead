@@ -1,8 +1,9 @@
 package com.brentcroft.shithead.jgiven;
 
+import static com.brentcroft.shithead.context.Messages.NOT_ENOUGH_PLAYERS;
+import static com.brentcroft.shithead.context.Messages.NO_MORE_CARDS;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import com.brentcroft.shithead.StandardGame;
 import com.brentcroft.shithead.context.Messages;
@@ -11,6 +12,8 @@ import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ScenarioState;
+
+import java.util.BitSet;
 
 public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
 {
@@ -27,6 +30,15 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
     Discard play;
 
 
+
+    public ThenSomeOutcome exception_with_message(String message)
+    {
+        assertNotNull( actionException );
+        assertEquals( message, actionException.getMessage() );
+        return self();
+    }
+
+
     public ThenSomeOutcome cards_already_dealt_exception()
     {
         assertNotNull( actionException );
@@ -35,10 +47,18 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         return self();
     }
 
+    public ThenSomeOutcome not_enough_players_exception()
+    {
+        assertNotNull( actionException );
+        assertEquals( NOT_ENOUGH_PLAYERS, actionException.getMessage() );
+
+        return self();
+    }
+
     public ThenSomeOutcome no_more_cards_exception()
     {
         assertNotNull( actionException );
-        assertEquals( Cards.NO_MORE_CARDS, actionException.getMessage() );
+        assertEquals( NO_MORE_CARDS, actionException.getMessage() );
 
         return self();
     }
@@ -78,7 +98,17 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
 
     public ThenSomeOutcome the_stack_is_empty()
     {
-        assertEquals( true, game.getGameModel().getStack().isEmpty() );
+        assertTrue( game.getGameModel().getStack().isEmpty() );
+        return self();
+    }
+
+    public ThenSomeOutcome the_stack_is_not_empty() {
+        assertFalse( game.getGameModel().getStack().isEmpty() );
+        return self();
+    }
+
+    public ThenSomeOutcome has_stack_top_card( String cardText) {
+        assertEquals( Cards.getCard(cardText),  game.getGameModel().getStack().peek() );
         return self();
     }
 }

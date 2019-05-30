@@ -11,6 +11,7 @@ import com.brentcroft.shithead.context.GameContext;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.GameModel;
 import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.model.Rules;
 
 public class DetectFirstPlayer implements Command< GameContext >
 {
@@ -37,7 +38,7 @@ public class DetectFirstPlayer implements Command< GameContext >
 
     Player selectFirstPlayer( List< Player > players, int value )
     {
-        if ( value > Cards.SUIT_SIZE )
+        if ( value > Rules.SUIT_SIZE )
         {
             throw new RuntimeException( NO_FIRST_PLAYER );
         }
@@ -48,6 +49,4 @@ public class DetectFirstPlayer implements Command< GameContext >
                 .findFirst()
                 .orElseGet( () -> selectFirstPlayer( players, value + 1 ) );
     }
-
-
 }

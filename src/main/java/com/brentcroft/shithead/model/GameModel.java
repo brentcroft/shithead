@@ -6,6 +6,7 @@ import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import lombok.Getter;
@@ -18,10 +19,8 @@ public class GameModel
     public static final int FIRST_PLAYER_VALUE = 3;
     public static final int MIN_HAND_SIZE_TO_PICKUP = 3;
 
-    private static final BiFunction< Stack< Card >, Card, Boolean > STACK_CARD_SELECTOR = ( stack,
-            card ) -> stack.isEmpty()
-                    || Cards.isWildcard( card )
-                    || card.getValue() >= stack.peek().getValue();
+    @Setter
+    private int minPlayers = 1;
 
                     
     //
@@ -31,7 +30,7 @@ public class GameModel
     private Stack< Player > lastPlayer = new Stack<>();
     private Player currentPlayer;
     //
-    private Predicate< Card > selector = ( card ) -> STACK_CARD_SELECTOR.apply( stack, card );
+    private Predicate< Card > selector = ( card ) -> Rules.STACK_CARD_SELECTOR.apply( stack, card );
 
 
     public void setCurrentPlayer( Player player )

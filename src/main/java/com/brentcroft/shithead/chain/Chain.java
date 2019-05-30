@@ -22,14 +22,16 @@ public class Chain< CONTEXT >
         return context;
     }
 
-    public static TypeInitialiser createChain()
+    public static class CommandInitialiser< CONTEXT >
     {
-        return new TypeInitialiser();
+        public Builder< CONTEXT > firstDo( Command< ? super CONTEXT > firstCommand )
+        {
+            return new Builder<>( firstCommand );
+        }
     }
 
-    public static class TypeInitialiser
+    private static class TypeInitialiser
     {
-
         public < CONTEXT > CommandInitialiser< CONTEXT > withContextType( Class< CONTEXT > contextType )
         {
             return new CommandInitialiser<>();
@@ -38,22 +40,9 @@ public class Chain< CONTEXT >
 
     public static < C > CommandInitialiser< C > of( Class< C > contextType )
     {
-        return createChain().withContextType( contextType );
+        return new TypeInitialiser().withContextType( contextType );
     }
 
-    public static class CommandInitialiser< CONTEXT >
-    {
-
-        public Builder< CONTEXT > startingWith( Command< ? super CONTEXT > firstCommand )
-        {
-            return new Builder<>( firstCommand );
-        }
-
-        public Builder< CONTEXT > firstDo( Command< ? super CONTEXT > firstCommand )
-        {
-            return startingWith( firstCommand );
-        }
-    }
 
     public static class Builder< CONTEXT >
     {

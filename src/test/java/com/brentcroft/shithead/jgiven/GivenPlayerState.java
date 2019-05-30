@@ -2,6 +2,7 @@ package com.brentcroft.shithead.jgiven;
 
 
 import com.brentcroft.shithead.model.Card;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Player;
 import com.tngtech.jgiven.Stage;
@@ -31,8 +32,7 @@ public class GivenPlayerState extends Stage<GivenPlayerState> {
 
     public GivenPlayerState with_hand_cards(String cardText)
     {
-        Cards
-                .fromText(cardText)
+        CardList.of(cardText)
                 .forEach(card->player.addCard(Player.ROW.HAND, card));
 
         return self();
@@ -40,16 +40,14 @@ public class GivenPlayerState extends Stage<GivenPlayerState> {
 
     public GivenPlayerState with_faceup_cards(String cardText)
     {
-        Cards
-                .fromText(cardText)
+        CardList.of(cardText)
                 .forEach(card->player.addCard(Player.ROW.FACEUP, card));
         return self();
     }
 
     public GivenPlayerState with_blind_cards(String cardText)
     {
-        Cards
-                .fromText(cardText)
+        CardList.of(cardText)
                 .forEach(card->player.addCard(Player.ROW.BLIND, card));
         return self();
     }

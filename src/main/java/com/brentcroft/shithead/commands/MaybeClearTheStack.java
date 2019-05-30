@@ -1,7 +1,9 @@
 package com.brentcroft.shithead.commands;
 
+import java.util.Objects;
 import java.util.Stack;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.brentcroft.shithead.chain.Command;
@@ -11,6 +13,8 @@ import com.brentcroft.shithead.model.Card;
 @Component
 public class MaybeClearTheStack implements Command< GameContext >
 {
+    @Autowired
+    ActionNotifier notifier = ActionNotifier.getNotifier();
 
     @Override
     public void action( GameContext context )
@@ -20,9 +24,12 @@ public class MaybeClearTheStack implements Command< GameContext >
     
     void maybeClearTheStack( Stack< Card > stack )
     {
-        if ( maybe10( stack ) || maybeFourOfAKind( stack ) )
+        if ( !stack.isEmpty() && ( maybe10( stack ) || maybeFourOfAKind( stack ) ) )
         {
-            notifyAction( "*", "Tsshhh...", stack );
+            if (Objects.nonNull(notifier))
+            {
+                notifier.notifyAction("*", "Tsshhh...", stack);
+            }
 
             stack.clear();
         }
@@ -39,7 +46,7 @@ public class MaybeClearTheStack implements Command< GameContext >
         Card lastCard = null;
         int numOfAKind = 0;
 
-        for ( int index = stack.size() - 1; index > 0; index-- )
+        for ( int index = stack.size() - 1; index >= 0; index-- )
         {
             Card nextCard = stack.elementAt( index );
             if ( nextCard.getValue() != 3 )
@@ -55,7 +62,10 @@ public class MaybeClearTheStack implements Command< GameContext >
 
                     if ( numOfAKind == 4 )
                     {
-                        notifyAction( "*", "Four of a kind", "" );
+                        if (Objects.nonNull(notifier))
+                        {
+                            notifier.notifyAction("*", "Four of a kind", "");
+                        }
                         return true;
                     }
                 }

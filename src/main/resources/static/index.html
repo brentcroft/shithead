@@ -1,127 +1,59 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <style>
-			body, div, p, pre, textarea, input {
-				margin: 5px;
-				font-size: 100%;
-				font-family: sans-serif
-			}
-
-			#gameModel {
-			  display: flex;
-			  flex-direction: row;
-			  flex-wrap: nowrap;
-			  justify-content: space-around;
-			}
-
-			#players {
-			  display: flex;
-			  flex-direction: row;
-			  flex-wrap: nowrap;
-			  justify-content: space-around;
-			}
-
-			.script {
-				font-size: 80%;
-				width: 80%;
-				height: 100pt;
-			}
-
-			.pile {
-				width: 30%;
-				border: 1pt dashed;
-			}
-
-			.player {
-				width: 30%;
-				border: 1pt solid;
-			}
-
-			.playerDetails {
-			  display: flex;
-			  flex-direction: row;
-			  flex-wrap: nowrap;
-			  justify-content: space-around;
-			}
-
-			.cardSet {
-				border: 1pt dotted;
-			}
-
-			.glyph {
-				border: 0pt solid;
-				font-size: 600%;
-			}
-			.suitGlyph {
-				font-size: 200%;
-			}
-
-
-			.card {
-				border: 1pt solid;
-				border-radius: 5px;
-			}
-
-			.topDiscard {
-				border: 2pt solid green;
-			}
-
-			.selectable_1 {
-				border: 2pt dashed #CF0000;
-			}
-			.selectable_2 {
-				border: 2pt dotted #AF0000;
-			}
-			.selectable_3 {
-				border: 2pt dotted #8F0000;
-			}
-			.selectable_4 {
-				border: 2pt dotted;
-			}
-			.selectable_5 {
-				border: 2pt dotted #4F0000;
-			}
-			.selectable_6 {
-				border: 2pt dotted #2F0000;
-			}
-			.selectable_7 {
-				border: 2pt dotted #0F0000;
-			}
-			.selectable_8 {
-				border: 2pt dotted;
-			}
-			.selectable_9 {
-				border: 2pt dotted;
-			}
-			.selectable_10 {
-				border: 2pt dotted;
-			}
-
-			.selected {
-				border: 2pt solid blue;
-			}
-
-			.nextPlayer {
-				border: 5pt solid green;
-			}
-		</style>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="shithead.css" type="text/css">
         <script>
-            function cardStyle( card ) {
-                return "card";
+
+            function toggler( value, lvs, sep ){
+                var valueSet = lvs.get()
+                if ( !valueSet ) {
+                    valueSet = value
+                } else {
+                    var p = valueSet.indexOf( value )
+
+                    if ( p < 0 ) {
+                        valueSet += ( sep ? sep : " ") + value;
+                    } else {
+                        valueSet = valueSet.replace( value, "" );
+                    }
+                }
+                lvs.set( valueSet.trim() )
             }
 
-            function cardView( card ){
-                return card;
+            function selectCard( playerName, element ) {
+                var attribute = 'class'
+                var value = 'selected'
+
+                toggler( value, {
+                    get:() => element.getAttribute( attribute ),
+                    set: v => element.setAttribute( attribute, v.trim() )
+                } )
+
+                try
+                {
+
+                    var discardField = document.getElementById( playerName +'_discard' )
+
+                    toggler( element.textContent, {
+                        get:() => discardField.value,
+                        set: v => discardField.value = v.trim()
+                    }, ", " )
+
+                } catch ( e ) {
+                    alert( "Failed to update player " + playerName + " discard field: " + e )
+                }
             }
 
-            function formatCard( card )
+
+            function formatCard( player, card )
             {
-                return (" <span id=\""+ card +"\" class=\"" + cardStyle( card ) + "\">" + cardView( card ) + "</span>" ) ;
+                return player
+                    ? ' <span id="'+ card +'" onclick="selectCard( \'' + player.name + '\', this )" class="card">' + card + '</span>'
+                    : ' <span id="'+ card +'" class="card">' + card + '</span>';
             }
 
-            function formatCardSet( cardSet, id, name, blind ){
+            function formatCardSet( player, cardSet, id, name, blind ){
 
                 if ( !cardSet )
                 {
@@ -135,7 +67,7 @@
                 var view = this;
 
                 cardSet.forEach( function( card ){
-                    cardSetDiv += formatCard( card );
+                    cardSetDiv += formatCard( player, card );
                 });
 
                 cardSetDiv += '</div>';
@@ -144,20 +76,26 @@
             }
 
 
-            function formatPlayer( player ){
+            function formatPlayer( gameModel, player ){
 
                 if ( !player )
                 {
                     return "(empty)";
                 }
 
-                var isNextGo = ( gameModel.nextPlayer && gameModel.nextPlayer === player );
+                var isNextGo = ( gameModel.nextPlayer && gameModel.nextPlayer == player.name );
 
 
                 var playerDiv = '<div id="' + player.name + '" class="player' + ( isNextGo ? ' nextPlayer' : '' ) + '">';
 
                 playerDiv += '<div class="playerDetails">';
                 playerDiv += '<div>' + player.name + ( isNextGo ? ' (next)' : '' ) + '</div>';
+
+                var playDiv = '<input type="button" value="play" onclick="play(\'' + player.name + '\')"/> ';
+                playDiv += '<input type="text" id="' + player.name +'_discard"/>';
+
+                playerDiv += '<div>' + playDiv + '</div>';
+
                 playerDiv += '</div>';
 
                 if ( player.finished )
@@ -165,9 +103,9 @@
                     playerDiv += '<div>Finished at step: ' + player.finishedStepCount + '</div>';
                 }
 
-                playerDiv += formatCardSet( player.hand, player.name + ".hand", "Hand" );
-                playerDiv += formatCardSet( player.faceup, player.name + ".faceup", "Face-up" );
-                playerDiv += formatCardSet( player.blind, player.name + ".blind", "Blind", true );
+                playerDiv += formatCardSet( player, player.hand, player.name + ".hand", "Hand" );
+                playerDiv += formatCardSet( player, player.faceup, player.name + ".faceup", "Face-up" );
+                playerDiv += formatCardSet( player, player.blind, player.name + ".blind", "Blind", true );
 
                 playerDiv += '</div>';
 
@@ -182,7 +120,7 @@
 
                 if ( gameModel && gameModel.players ) {
                     gameModel.players.forEach( function( player ){
-                        update += formatPlayer( player );
+                        update += formatPlayer( gameModel, player );
                     } )
                 }
 
@@ -193,11 +131,11 @@
 
 			function refreshGame( gameModel )
 			{
-                var update = '<div id="deck" class="pile"><p>Deck size: ' + gameModel.deck.length + '</p>';
+                var update = '<div id="deck" class="pile"><p>Deck size: ' + gameModel.deck.cards.length + '</p>';
                 update += '</div>';
 
                 update += '<div id="stack" class="pile">';
-                update += formatCardSet( gameModel.stack, "stack", "Stack" );
+                update += formatCardSet( null, gameModel.stack, "stack", "Stack" );
                 update += '</div>';
 
                 update += '<div id="trash" class="pile"><p>Trash size: ?</p></div>';
@@ -213,27 +151,53 @@
 			{
                 var opts = {
                   method: 'GET',
-                  headers: {}
+                  headers: { 'Accept':'text/json'}
                 };
                 fetch( url, opts )
                 .then( function( response )
                 {
-                  return response.json();
+                    try {
+                        return response.json();
+                    } catch ( e ) {
+                        return JSON.stringify( { "error": { "response": response, "error": e } } );
+                    }
                 })
-                .then( function( gameModel )
+                .then( function( response )
                 {
-                    refreshGame( gameModel );
-                    refreshPlayers( gameModel );
+                    if ( response ) {
+                        if ( response.error ) {
+                            alert(JSON.stringify( response, null, "  " ) )
+                        } else {
+                            refreshGame( response );
+                            refreshPlayers( response );
+                        }
+                    } else {
+                        alert("Empty response")
+                    }
                 });
+			}
+
+			function addPlayer()
+			{
+			    var playerName = document.getElementById( 'playerName' ).value;
+			    fetchJSON( '/add-player/' +  playerName)
+			}
+
+			function play( playerName )
+			{
+			    var playerDiscard = '[' + document.getElementById( playerName + '_discard' ).value + ']';
+			    fetchJSON( '/play/' +  playerName + '?cards=' +  encodeURIComponent( playerDiscard ) );
 			}
 		</script>
 </head>
-    <body onload="fetchJSON( '/gameModel' )">
-        <p>Shithead</p>
-        <a href="javascript:fetchJSON( 'add-player/red' )">add red</a> |
-        <a href="javascript:fetchJSON( 'add-player/green' )">add green</a> |
-        <a href="javascript:fetchJSON( 'add-player/blue' )">add blue</a> |
-        <a href="javascript:fetchJSON( 'deal' )">deal</a>
+    <body>
+        <form>
+            <b>Shithead</b> :
+            <a href="javascript:fetchJSON( 'new-game' )">new-game</a> |
+            <input type="text" id="playerName" value="red"/> <a href="javascript:addPlayer()">add player</a> |
+            <a href="javascript:fetchJSON( 'deal' )">deal</a> |
+            <a href="javascript:fetchJSON( 'detect-first-player' )">first-player</a>
+        </form>
         <hr/>
         <div id="gameModel" class="gameModel">(no gameModel)</div>
         <div id="players" class="players">(no players)</div>

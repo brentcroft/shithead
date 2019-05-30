@@ -9,11 +9,14 @@ import com.brentcroft.shithead.model.GamePlay;
 import com.brentcroft.shithead.model.Player;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class StandardGame implements GamePlay
 {
     private final GameModel gameModel = new GameModel();
+
 
     public void addPlayer( Player player )
     {
@@ -24,6 +27,8 @@ public class StandardGame implements GamePlay
     {
         DEAL.executeUsing( new GameContext( gameModel ) );
     }
+
+
 
     public void detectFirstPlayer()
     {
@@ -40,9 +45,11 @@ public class StandardGame implements GamePlay
 
         CHECK_PLAYER_AND_CARDS.executeUsing( context );
 
+        PLAYER_DISCARDS.executeUsing( context );
+
         if ( context.isValid() )
         {
-            PLAYER_DISCARDS_AND_TOPS_UP.executeUsing( context );
+            PLAYER_TOPS_UP.executeUsing( context );
         }
         else
         {

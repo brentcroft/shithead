@@ -1,12 +1,14 @@
 package com.brentcroft.shithead.commands;
 
 import static com.brentcroft.shithead.context.Messages.PLAYER_COULD_HAVE_PLAYED;
+import static java.lang.String.format;
 
 import java.util.List;
 
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.DiscardContext;
 import com.brentcroft.shithead.model.Card;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.GameModel;
 import com.brentcroft.shithead.model.Player;
 
@@ -29,23 +31,22 @@ public class CheckPlayerDiscard implements Command< DiscardContext >
         {
             return false;
         }
-        else if ( gameModel.getSelector().test( cards.get( 0 ) ) )
+        else if ( ( player.hasCardsInHand() || player.hasCardsInFaceUp() ) && !gameModel.getSelector().test( cards.get( 0 ) ) )
         {
-            return true;
+            verifyPlayerCannotPlay( gameModel, player, cards );
+
+            return false;
         }
-
-        verifyPlayerCannotPlay( player, cards );
-
-        return false;
+        return true;
     }
 
-    void verifyPlayerCannotPlay( Player player, List< Card > cards )
+    void verifyPlayerCannotPlay( GameModel gameModel, Player player, List< Card > cards )
     {
-        boolean couldHavePlayed = false;
+        CardList choices = player.chooseCards(gameModel.getSelector());
 
-        if ( couldHavePlayed )
+        if ( choices.containsAll(cards))
         {
-            throw new RuntimeException( PLAYER_COULD_HAVE_PLAYED );
+            throw new RuntimeException( format( PLAYER_COULD_HAVE_PLAYED, player, cards, choices ) );
         }
     }
 }

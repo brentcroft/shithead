@@ -1,6 +1,7 @@
 package com.brentcroft.shithead.commands;
 
 import static com.brentcroft.shithead.context.Messages.CARDS_ALREADY_DEALT;
+import static com.brentcroft.shithead.context.Messages.NOT_ENOUGH_PLAYERS;
 
 import java.util.stream.IntStream;
 
@@ -23,6 +24,10 @@ public class DealTheCards implements Command< GameContext >
         if ( gameModel.getDeck().dealt() )
         {
             throw new RuntimeException( CARDS_ALREADY_DEALT );
+        }
+        else if ( gameModel.getPlayers().size() < gameModel.getMinPlayers() )
+        {
+            throw new RuntimeException( NOT_ENOUGH_PLAYERS );
         }
 
         Player.ROW.forEach(

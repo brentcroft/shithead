@@ -11,17 +11,11 @@ public class CheckGameFinished implements Command< GameContext >
     @Override
     public void action( GameContext context )
     {
-        checkGameFinished( context.getGameModel() );
+        context.setFinished( checkGameFinished( context.getGameModel() ) );
     }
 
-    void checkGameFinished( GameModel gameModel )
+    boolean checkGameFinished( GameModel gameModel )
     {
-        if ( gameModel.getPlayers().size() < 2 )
-        {
-            throw new ShitheadException(
-                    format( "[%s] is the shithead! %s",
-                            gameModel.getCurrentPlayer(),
-                            gameModel.getCurrentPlayer().cardsText() ) );
-        }
+        return gameModel.getPlayers().size() <= 1;
     }
 }
