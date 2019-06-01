@@ -1,6 +1,7 @@
 package com.brentcroft.shithead.model;
 
 import static com.brentcroft.shithead.context.Messages.NO_MORE_CARDS;
+import static com.brentcroft.shithead.model.Rules.BLIND_SUIT;
 import static com.brentcroft.shithead.model.Rules.LOWEST_CARD_VALUE;
 import static com.brentcroft.shithead.model.Rules.NUM_CARDS;
 
@@ -55,9 +56,18 @@ public class Cards
         int[] index = {0};
         return CardList.of(blindCards
                 .stream()
-                .map(b-> new Card( index[0]++, Rules.BLIND_SUIT))
+                .map(b-> new Card( index[0]++, BLIND_SUIT))
                 .collect(Collectors.toList()));
     }
+
+    public static CardList debacinate(CardList cards, CardList blindCards) {
+        return CardList.of(cards
+                .stream()
+                .map(b-> b.getSuit() == BLIND_SUIT ? blindCards.get(b.getValue() ) : b )
+                .collect(Collectors.toList()));
+    }
+
+
 
     private static Card blindCard(Card card) {
         return newCard(-1);

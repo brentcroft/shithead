@@ -3,10 +3,7 @@ package com.brentcroft.shithead;
 import com.brentcroft.shithead.context.DiscardContext;
 import com.brentcroft.shithead.context.GameContext;
 import com.brentcroft.shithead.context.PlayerContext;
-import com.brentcroft.shithead.model.Discard;
-import com.brentcroft.shithead.model.GameModel;
-import com.brentcroft.shithead.model.GamePlay;
-import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.model.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +39,8 @@ public class StandardGame implements GamePlay
                 gameModel,
                 gameModel.getPlayer( discard.getPlayerName() ),
                 discard );
+
+        discard.debacinate(context.getPlayer().getBlindCards());
 
         CHECK_PLAYER_AND_CARDS.executeUsing( context );
 

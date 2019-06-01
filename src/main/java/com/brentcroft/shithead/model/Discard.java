@@ -26,4 +26,11 @@ public class Discard
     public boolean rolloverOnPickup() {
         return true;
     }
+
+    public void debacinate(CardList realCards)
+    {
+        CardList newCards = Cards.debacinate(getCards(), realCards);
+        cards.clear();
+        cards.addAll( newCards);
+    }
 }
