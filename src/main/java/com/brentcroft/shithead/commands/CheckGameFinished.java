@@ -1,7 +1,5 @@
 package com.brentcroft.shithead.commands;
 
-import static java.lang.String.format;
-
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.GameContext;
 import com.brentcroft.shithead.model.GameModel;
@@ -16,6 +14,6 @@ public class CheckGameFinished implements Command< GameContext >
 
     boolean checkGameFinished( GameModel gameModel )
     {
-        return gameModel.getPlayers().size() <= 1;
+        return gameModel.getPlayers().size() <= gameModel.getMinPlayers();
     }
 }

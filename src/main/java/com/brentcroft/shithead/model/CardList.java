@@ -1,18 +1,14 @@
 package com.brentcroft.shithead.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.brentcroft.shithead.model.Rules.CARD_COMPARATOR;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class CardList extends ArrayList<Card>
 {
-    private static final Comparator<? super Card> CARD_COMPARATOR = (Comparator<Card>) Rules.CARD_COMPARATOR::apply;
-
     public static CardList of(List<Card> cards)
     {
         CardList cl = new CardList();
@@ -36,10 +32,16 @@ public class CardList extends ArrayList<Card>
             text = text.substring(1, text.length()-1);
         }
 
-        return of(Arrays
-                .asList(text.split("\\s*,\\s*"))
+        List<String> ct = Arrays
+                .asList(text.split("[,\\s]+"))
                 .stream()
                 .map(String::trim)
+                .filter(s->!s.isEmpty())
+                .collect(Collectors.toList());
+
+        return of(
+                ct
+                .stream()
                 .map(Cards::getCard)
                 .collect(Collectors.toList()));
     }

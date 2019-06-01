@@ -1,29 +1,29 @@
 package com.brentcroft.shithead;
 
-import static org.junit.Assert.assertEquals;
+import static java.lang.String.format;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import com.brentcroft.shithead.model.CardList;
+import com.brentcroft.shithead.www.JSONRenderer;
 import org.junit.Test;
 
-import com.brentcroft.shithead.commands.ShitheadException;
 import com.brentcroft.shithead.jgiven.CardsUtil;
-import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 public class StandardGameTest
 {
+    private static final int MAX_TURN = 300;
+
     @Test
-    public void gameFinishedWhenOnePlayerLeft()
+    public void gameFinishedWhenMinPlayersLeft()
     {
+        int minPlayers = 1;
+
+
         StandardGame game = new StandardGame();
+
+        game.getGameModel().setMinPlayers(minPlayers);
 
         List< Player > players = CardsUtil.PLAYERS.getPlayers( 3 );
 
@@ -31,29 +31,26 @@ public class StandardGameTest
 
         game.dealCards();
         game.detectFirstPlayer();
-      
-        
-        try
+
+
+        while ( minPlayers <= game.getGameModel().getPlayers().size()  )
         {
-            while ( game.getGameModel().getMinPlayers() <= game.getGameModel().getPlayers().size()  )
+            int turn = game.getGameModel().getTurnNo();
+
+            if (turn == MAX_TURN)
             {
-                Player player = game.getGameModel().getCurrentPlayer();
-
-                CardList cards = player.chooseCards( game.getGameModel().getSelector() );
-
-                if ( cards.size() == 0)
-                {
-                    cards = CardList.of( player.getHandCards().get(0) );
-                }
-
-                game.playerDiscard( new Discard( player.getName(), CardList.of( cards.get(0) ) ) );
+                throw new RuntimeException(format("Exceeded max turns: %s %n%s", turn, JSONRenderer.render(game.getGameModel())));
             }
-        }
-        catch ( ShitheadException e )
-        {
-            System.out.println( e.getMessage() );
-        }        
 
-        assertTrue( game.getGameModel().getMinPlayers() >= game.getGameModel().getPlayers().size() );
+            Player player = game.getGameModel().getCurrentPlayer();
+
+            game.playerDiscard( player.getDiscard(game.getGameModel().getSelector()) );
+        }
+
+        System.out.println( "LAST PLAYERS: " + game.getGameModel().getPlayers() );
+        System.out.println( "MODEL: " + JSONRenderer.render( game.getGameModel() ) );
+
+
+        assertTrue( minPlayers > game.getGameModel().getPlayers().size() );
     }
 }

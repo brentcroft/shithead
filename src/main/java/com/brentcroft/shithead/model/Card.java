@@ -17,13 +17,6 @@ public class Card
         this.suit = suit;
     }
 
-    public Card( int i )
-    {
-        this(
-                i < 0 ? -1 : 1 + ( i % Rules.SUIT_SIZE ),
-                i < 0 ? -1 : i / Rules.SUIT_SIZE );
-    }
-
     public boolean equals(Object obj)
     {
         if ( obj instanceof Card) {

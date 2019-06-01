@@ -3,6 +3,7 @@ package com.brentcroft.shithead.jgiven;
 import static com.brentcroft.shithead.jgiven.CardsUtil.ANY_CARDS;
 
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import com.brentcroft.shithead.StandardGame;
 import com.brentcroft.shithead.jgiven.CardsUtil.CardListGenerator;
@@ -27,6 +28,7 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
 
     @ProvidedScenarioState
     Discard play;
+
 
 
     interface GameAction
@@ -114,4 +116,30 @@ public class WhenSomeAction extends Stage< WhenSomeAction >
         }
         return self();
     }
+
+
+    public WhenSomeAction selects_cards( )
+    {
+        play = player.getDiscard(game.getGameModel().getSelector());
+        return self();
+    }
+
+
+    public WhenSomeAction play_turns(int turns) {
+
+        IntStream
+                .range( 0, turns )
+                .forEach( turn -> {
+
+                    if ( ! game.getGameModel().isFinished())
+                    {
+                        Player player = game.getGameModel().getCurrentPlayer();
+
+                        game.playerDiscard( player.getDiscard( game.getGameModel().getSelector() ) ) ;
+                    }
+                } );
+
+        return self();
+    }
+
 }

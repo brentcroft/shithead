@@ -20,7 +20,7 @@ public class GameModel
     public static final int MIN_HAND_SIZE_TO_PICKUP = 3;
 
     @Setter
-    private int minPlayers = 1;
+    private int minPlayers = 2;
 
                     
     //
@@ -29,6 +29,8 @@ public class GameModel
     private final List< Player > players = new ArrayList<>();
     private Stack< Player > lastPlayer = new Stack<>();
     private Player currentPlayer;
+
+    private int turnNo = 0;
     //
     private Predicate< Card > selector = ( card ) -> Rules.STACK_CARD_SELECTOR.apply( stack, card );
 
@@ -52,5 +54,15 @@ public class GameModel
                 .filter( p -> p.getName().equals( playerName ) )
                 .findFirst()
                 .orElseThrow( () -> new RuntimeException( "No such player: " + playerName ) );
+    }
+
+    public boolean isFinished()
+    {
+        return minPlayers > players.size();
+    }
+
+
+    public void incrementTurn() {
+        turnNo++;
     }
 }

@@ -39,7 +39,7 @@ public class CheckPlayerCards implements Command< DiscardContext >
         {
             if ( !player.hasCards( Player.ROW.HAND, cards ) )
             {
-                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_HAND, player, cards ) );
+                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_HAND, cards, player, player.getHandCards() ) );
             }
         }
         else if ( player.hasCardsInFaceUp() )

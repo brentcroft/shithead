@@ -7,9 +7,11 @@ import static org.junit.Assert.*;
 
 import com.brentcroft.shithead.StandardGame;
 import com.brentcroft.shithead.context.Messages;
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Cards;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.www.JSONRenderer;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.ScenarioState;
 
@@ -28,15 +30,6 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
 
     @ScenarioState
     Discard play;
-
-
-
-    public ThenSomeOutcome exception_with_message(String message)
-    {
-        assertNotNull( actionException );
-        assertEquals( message, actionException.getMessage() );
-        return self();
-    }
 
 
     public ThenSomeOutcome cards_already_dealt_exception()
@@ -110,5 +103,50 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
     public ThenSomeOutcome has_stack_top_card( String cardText) {
         assertEquals( Cards.getCard(cardText),  game.getGameModel().getStack().peek() );
         return self();
+    }
+
+
+    public ThenSomeOutcome exception_with_message(String message)
+    {
+        assertNotNull( actionException );
+        assertEquals( message, actionException.getMessage() );
+        return self();
+    }
+
+
+    public ThenSomeOutcome discard_exception_with_message_and_cards(String message, String cardText) {
+
+        assertNotNull( actionException );
+        assertEquals(
+                format(
+                        message,
+                        player,
+                        cardText ),
+                actionException.getMessage() );
+
+        return self();
+    }
+
+    public ThenSomeOutcome the_discard_contains(String cardText) {
+        assertNotNull( play );
+
+        assertEquals(
+                CardList.of(cardText),
+                play.getCards() );
+
+        return self();
+    }
+
+    public ThenSomeOutcome game_has_finished() {
+
+        if ( !game.getGameModel().isFinished() )
+        {
+            System.out.println("GAME NOT FINISHED: " + JSONRenderer.render(game.getGameModel()));
+        }
+
+        assertTrue( game.getGameModel().isFinished());
+
+        return self();
+
     }
 }

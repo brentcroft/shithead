@@ -63,6 +63,24 @@ body, div, p, pre, textarea, input {
     border: 2pt solid green;
 }
 
+.playable {
+    border: 2pt dashed green;
+}
+
+.recommended {
+    border: 2pt dashed #CF0000;
+}
+
+
+.selected {
+    border: 2pt solid blue;
+}
+
+.nextPlayer {
+    border: 5pt solid green;
+}
+
+
 .selectable_1 {
     border: 2pt dashed #CF0000;
 }
@@ -92,12 +110,4 @@ body, div, p, pre, textarea, input {
 }
 .selectable_10 {
     border: 2pt dotted;
-}
-
-.selected {
-    border: 2pt solid blue;
-}
-
-.nextPlayer {
-    border: 5pt solid green;
 }

@@ -66,18 +66,8 @@ public class GivenSomeState extends Stage< GivenSomeState >
                 .forEach( turn -> {
 
                     Player player = game.getGameModel().getCurrentPlayer();
-                    CardList cards = player.chooseCards( game.getGameModel().getSelector() );
 
-                    if ( cards.size() == 0)
-                    {
-                        cards = CardList.of(player.getHandCards().get(0));
-                    }
-
-                    game.playerDiscard(
-                            new Discard(
-                                    player.getName(),
-                                    CardList.of( cards.get(0) )
-                            ) ) ;
+                    game.playerDiscard( player.getDiscard( game.getGameModel().getSelector() ) ) ;
                 } );
         return self();
     }
@@ -105,6 +95,14 @@ public class GivenSomeState extends Stage< GivenSomeState >
             player = new Player( name );
             game.addPlayer( player );
         }
+
+        return self();
+    }
+
+
+    public GivenSomeState with_deck_cards(String cardText) {
+        CardList.of( cardText )
+                .forEach( card -> game.getGameModel().getDeck().getCards().push( card ));
 
         return self();
     }
@@ -145,7 +143,7 @@ public class GivenSomeState extends Stage< GivenSomeState >
         return self();
     }
 
-    public GivenSomeState with_faceup_Cards(String cardText) {
+    public GivenSomeState with_faceup_cards(String cardText) {
         with_empty_faceup_cards();
 
         if ( cardText != null ) {
@@ -173,4 +171,5 @@ public class GivenSomeState extends Stage< GivenSomeState >
 
         return self();
     }
+
 }

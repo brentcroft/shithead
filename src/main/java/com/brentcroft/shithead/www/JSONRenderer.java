@@ -96,7 +96,7 @@ public class JSONRenderer
             jsonGenerator.writeObjectField( "deck", gameModel.getDeck() );
             jsonGenerator.writeObjectField( "stack", gameModel.getStack() );
 
-            jsonGenerator.writeNumberField("turnNo", gameModel.getLastPlayer().size() );
+            jsonGenerator.writeNumberField("turnNo", gameModel.getTurnNo() );
 
             if (Objects.nonNull(gameModel.getCurrentPlayer()))
             {

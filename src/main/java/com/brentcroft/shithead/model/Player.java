@@ -1,11 +1,13 @@
 package com.brentcroft.shithead.model;
 
 import static com.brentcroft.shithead.context.Messages.CARD_NOT_IN_CURRENT_ROW;
+import static com.brentcroft.shithead.model.Rules.CARD_COMPARATOR;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -143,7 +145,9 @@ public class Player
                                 : null;
     }
 
-    public CardList chooseCards( Predicate<Card> selector )
+
+
+    public CardList chooseValidCards( Predicate<Card> selector )
     {
         ROW currentRow = currentRow();
 
@@ -161,9 +165,57 @@ public class Player
                 return  CardList.of( getCards( currentRow )
                         .stream()
                         .filter( selector )
+                        .sorted(CARD_COMPARATOR)
                         .collect( Collectors.toList() ) );
         }
     }
+
+    public CardList chooseAnyCards( )
+    {
+        ROW currentRow = currentRow();
+
+        if ( currentRow == null )
+        {
+            throw new RuntimeException( "Current row is null: " + this );
+        }
+
+        switch ( currentRow )
+        {
+            case BLIND:
+                return CardList.of(getCards(currentRow).get(0));
+
+            default:
+                return  CardList.of( getCards( currentRow )
+                        .stream()
+                        .sorted(CARD_COMPARATOR)
+                        .collect( Collectors.toList() ) );
+        }
+    }
+
+
+    public Discard getDiscard(Predicate<Card> selector) {
+        // valid discards
+        CardList cards = chooseValidCards( selector );
+
+        if ( cards.size() == 0)
+        {
+            // invalid discards
+            cards = chooseAnyCards();
+        }
+
+        int value = cards.get(0).getValue();
+
+        // TODO: control over multiplicity
+        return new Discard(
+                getName(),
+                CardList.of(
+                        cards
+                            .stream()
+                            .filter(card -> card.getValue() == value)
+                            .collect(Collectors.toList())));
+    }
+
+
 
     public void electCards( CardList cards )
     {

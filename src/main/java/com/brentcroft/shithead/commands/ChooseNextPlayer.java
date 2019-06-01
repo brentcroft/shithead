@@ -4,6 +4,7 @@ import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.GameContext;
 import com.brentcroft.shithead.model.GameModel;
 import com.brentcroft.shithead.model.Player;
+import com.brentcroft.shithead.www.JSONRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
@@ -51,6 +52,7 @@ public class ChooseNextPlayer implements Command< GameContext >
 
         if (Objects.nonNull(notifier))
         {
+            //String cpJson = JSONRenderer.render(currentPlayer[0]);
             notifier.notifyAction(currentPlayer[0], "is the next player", "");
         }
     }

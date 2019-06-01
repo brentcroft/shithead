@@ -1,6 +1,7 @@
 package com.brentcroft.shithead;
 
 
+import com.brentcroft.shithead.model.CardList;
 import com.brentcroft.shithead.model.Discard;
 import com.brentcroft.shithead.model.Player;
 import static com.brentcroft.shithead.www.JSONRenderer.render;
@@ -48,9 +49,50 @@ public class GameApp
     }
 
 
+    @RequestMapping( "/cards/playable" )
+    String cardsPlayable()
+    {
+        if ( game == null || getGame().getGameModel().getCurrentPlayer() == null)
+        {
+            return "[]";
+        }
+
+        CardList playable = getGame()
+                .getGameModel()
+                .getCurrentPlayer()
+                .chooseValidCards( getGame().getGameModel().getSelector() );
+
+        return render( playable );
+    }
+
+
+
+    @RequestMapping( "/cards/recommended" )
+    String cardsRecommended()
+    {
+        if ( game == null || getGame().getGameModel().getCurrentPlayer() == null)
+        {
+            return "[]";
+        }
+
+        CardList playable = getGame()
+                .getGameModel()
+                .getCurrentPlayer()
+                .getDiscard(getGame().getGameModel().getSelector())
+                .getCards();
+
+        return render( playable );
+    }
+
+
+
     @RequestMapping( "/game" )
     String game()
     {
+        if ( game == null)
+        {
+            return "{}";
+        }
         return render( getGame().getGameModel() );
     }
 

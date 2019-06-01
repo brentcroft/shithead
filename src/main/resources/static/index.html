@@ -46,6 +46,31 @@
             }
 
 
+            function refreshCards( cards, cssClass )
+            {
+                cards.forEach( function( card ){
+                    var cardElement = document.getElementById( card );
+                    if ( cardElement )
+                    {
+                        cardElement.className += " " + cssClass;
+
+                        if ( 'recommended' == cssClass )
+                        {
+                            var playerElement = cardElement.parentElement.parentElement
+
+                            var discardField = document.getElementById( playerElement.id +'_discard' )
+
+                            //selectCard( playerElement.id, cardElement )
+                            toggler( card, {
+                                get:() => discardField.value,
+                                set: v => discardField.value = v.trim()
+                            } )
+                        }
+                    }
+                } )
+            }
+
+
             function formatCard( player, card )
             {
                 return player
@@ -147,7 +172,7 @@
 
 
 
-			function fetchJSON( url )
+			function fetchGameJSON( url )
 			{
                 var opts = {
                   method: 'GET',
@@ -170,6 +195,9 @@
                         } else {
                             refreshGame( response );
                             refreshPlayers( response );
+
+                            fetchCardsJSON( '/cards/playable', 'playable' )
+                            fetchCardsJSON( '/cards/recommended', 'recommended' )
                         }
                     } else {
                         alert("Empty response")
@@ -177,26 +205,58 @@
                 });
 			}
 
-			function addPlayer()
+			function fetchCardsJSON( url, cssClass )
 			{
-			    var playerName = document.getElementById( 'playerName' ).value;
-			    fetchJSON( '/add-player/' +  playerName)
+                var opts = {
+                  method: 'GET',
+                  headers: { 'Accept':'text/json'}
+                };
+                fetch( url, opts )
+                .then( function( response )
+                {
+                    try {
+                        return response.json();
+                    } catch ( e ) {
+                        return JSON.stringify( { "error": { "response": response, "error": e } } );
+                    }
+                })
+                .then( function( response )
+                {
+                    if ( response ) {
+                        if ( response.error ) {
+                            alert(JSON.stringify( response, null, "  " ) )
+                        } else {
+                            refreshCards( response, cssClass );
+                        }
+                    } else {
+                        alert("Empty response")
+                    }
+                });
+			}
+
+
+
+			function addPlayer( name )
+			{
+			    var playerName = name ? name: document.getElementById( 'playerName' ).value;
+			    fetchGameJSON( 'add-player/' +  playerName)
 			}
 
 			function play( playerName )
 			{
 			    var playerDiscard = '[' + document.getElementById( playerName + '_discard' ).value + ']';
-			    fetchJSON( '/play/' +  playerName + '?cards=' +  encodeURIComponent( playerDiscard ) );
+			    fetchGameJSON( 'play/' +  playerName + '?cards=' +  encodeURIComponent( playerDiscard ) );
 			}
 		</script>
 </head>
     <body>
         <form>
             <b>Shithead</b> :
-            <a href="javascript:fetchJSON( 'new-game' )">new-game</a> |
+            <a href="javascript:fetchGameJSON( 'new-game' )">new-game</a> |
             <input type="text" id="playerName" value="red"/> <a href="javascript:addPlayer()">add player</a> |
-            <a href="javascript:fetchJSON( 'deal' )">deal</a> |
-            <a href="javascript:fetchJSON( 'detect-first-player' )">first-player</a>
+            <a href="javascript:addPlayer('red');addPlayer('green');addPlayer('blue')">3 players</a> |
+            <a href="javascript:fetchGameJSON( 'deal' )">deal</a> |
+            <a href="javascript:fetchGameJSON( 'detect-first-player' )">first-player</a>
         </form>
         <hr/>
         <div id="gameModel" class="gameModel">(no gameModel)</div>

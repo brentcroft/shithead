@@ -1,6 +1,7 @@
 package com.brentcroft.shithead.model;
 
 import static com.brentcroft.shithead.context.Messages.NO_MORE_CARDS;
+import static com.brentcroft.shithead.model.Rules.LOWEST_CARD_VALUE;
 import static com.brentcroft.shithead.model.Rules.NUM_CARDS;
 
 import java.util.*;
@@ -19,10 +20,10 @@ public class Cards
     public Cards( List< Integer > cardIds )
     {
         cards = new Stack<>();
-        cardIds.forEach( cardId -> cards.push( new Card( cardId ) ) );
+        cardIds.forEach( cardId -> cards.push( newCard( cardId ) ) );
     }
 
-    public Cards()
+    public Cards( )
     {
         this( IntStream
                 .range( 0, NUM_CARDS )
@@ -30,27 +31,36 @@ public class Cards
                 .collect( Collectors.toList() ) );
     }
 
+    public void shuffle() {
+        ;
+    }
+
     public int size() {
         return cards.size();
     }
 
 
+
     public static Card newCard( int i )
     {
-        return new Card( i );
+        return new Card(
+                i < 0 ? -1 : Rules.LOWEST_CARD_VALUE + ( i % Rules.SUIT_SIZE ),
+                i < 0 ? -1 : i / Rules.SUIT_SIZE
+        );
     }
 
 
 
     public static CardList abacinate(CardList blindCards) {
+        int[] index = {0};
         return CardList.of(blindCards
                 .stream()
-                .map(Cards::blindCard)
+                .map(b-> new Card( index[0]++, Rules.BLIND_SUIT))
                 .collect(Collectors.toList()));
     }
 
     private static Card blindCard(Card card) {
-        return new Card(-1);
+        return newCard(-1);
     }
 
     public static Card getCard(String ct) {
