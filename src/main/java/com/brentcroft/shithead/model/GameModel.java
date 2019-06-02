@@ -22,7 +22,7 @@ public class GameModel
     @Setter
     private int minPlayers = 2;
 
-                    
+
     //
     private final Cards deck = new Cards();
     private final Stack< Card > stack = new Stack<>();
@@ -62,7 +62,8 @@ public class GameModel
     }
 
 
-    public void incrementTurn() {
+    public void incrementTurn()
+    {
         turnNo++;
     }
 }

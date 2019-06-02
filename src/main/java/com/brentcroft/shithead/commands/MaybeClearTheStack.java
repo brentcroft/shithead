@@ -21,14 +21,14 @@ public class MaybeClearTheStack implements Command< GameContext >
     {
         maybeClearTheStack( context.getGameModel().getStack() );
     }
-    
+
     void maybeClearTheStack( Stack< Card > stack )
     {
         if ( !stack.isEmpty() && ( maybe10( stack ) || maybeFourOfAKind( stack ) ) )
         {
-            if (Objects.nonNull(notifier))
+            if ( Objects.nonNull( notifier ) )
             {
-                notifier.notifyAction("*", "Tsshhh...", stack);
+                notifier.notifyAction( "*", "Tsshhh...", stack );
             }
 
             stack.clear();
@@ -62,9 +62,9 @@ public class MaybeClearTheStack implements Command< GameContext >
 
                     if ( numOfAKind == 4 )
                     {
-                        if (Objects.nonNull(notifier))
+                        if ( Objects.nonNull( notifier ) )
                         {
-                            notifier.notifyAction("*", "Four of a kind", "");
+                            notifier.notifyAction( "*", "Four of a kind", "" );
                         }
                         return true;
                     }

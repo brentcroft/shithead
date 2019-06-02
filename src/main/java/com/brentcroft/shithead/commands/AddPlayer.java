@@ -25,7 +25,7 @@ public class AddPlayer implements Command< PlayerContext >
         }
         else if ( gameModel.hasPlayer( player.getName() ) )
         {
-            throw new RuntimeException( format(PLAYER_ALREADY_EXISTS, player.getName() ) );
+            throw new RuntimeException( format( PLAYER_ALREADY_EXISTS, player.getName() ) );
         }
 
         gameModel.getPlayers().add( player );

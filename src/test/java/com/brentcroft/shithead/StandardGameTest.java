@@ -23,7 +23,7 @@ public class StandardGameTest
 
         StandardGame game = new StandardGame();
 
-        game.getGameModel().setMinPlayers(minPlayers);
+        game.getGameModel().setMinPlayers( minPlayers );
 
         List< Player > players = CardsUtil.PLAYERS.getPlayers( 3 );
 
@@ -33,18 +33,19 @@ public class StandardGameTest
         game.detectFirstPlayer();
 
 
-        while ( minPlayers <= game.getGameModel().getPlayers().size()  )
+        while ( minPlayers <= game.getGameModel().getPlayers().size() )
         {
             int turn = game.getGameModel().getTurnNo();
 
-            if (turn == MAX_TURN)
+            if ( turn == MAX_TURN )
             {
-                throw new RuntimeException(format("Exceeded max turns: %s %n%s", turn, JSONRenderer.render(game.getGameModel())));
+                throw new RuntimeException(
+                        format( "Exceeded max turns: %s %n%s", turn, JSONRenderer.render( game.getGameModel() ) ) );
             }
 
             Player player = game.getGameModel().getCurrentPlayer();
 
-            game.playerDiscard( player.getDiscard(game.getGameModel().getSelector()) );
+            game.playerDiscard( player.getDiscard( game.getGameModel().getSelector() ) );
         }
 
         System.out.println( "LAST PLAYERS: " + game.getGameModel().getPlayers() );

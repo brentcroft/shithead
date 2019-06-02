@@ -40,9 +40,9 @@ public class PlayerPicksUpTheStack implements Command< DiscardContext >
             player.addCard( Player.ROW.HAND, card );
         }
 
-        if (Objects.nonNull(notifier))
+        if ( Objects.nonNull( notifier ) )
         {
-            notifier.notifyAction(player, "picks up the stack", pickedUp);
+            notifier.notifyAction( player, "picks up the stack", pickedUp );
         }
     }
 }

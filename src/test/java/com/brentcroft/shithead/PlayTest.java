@@ -5,6 +5,7 @@ import com.brentcroft.shithead.jgiven.ThenSomeOutcome;
 import com.brentcroft.shithead.jgiven.WhenSomeAction;
 import com.brentcroft.shithead.www.JSONRenderer;
 import com.tngtech.jgiven.junit.ScenarioTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.brentcroft.shithead.context.Messages.NOT_ENOUGH_PLAYERS;
@@ -14,7 +15,7 @@ import static com.brentcroft.shithead.context.Messages.NOT_ENOUGH_PLAYERS;
 public class PlayTest extends ScenarioTest< GivenSomeState, WhenSomeAction, ThenSomeOutcome >
 {
     /*
-        3♡, 10♣, 9♢
+     * 3♡, 10♣, 9♢
      */
 
 
@@ -26,7 +27,7 @@ public class PlayTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
                 .first_player_detected();
 
         when()
-                .play_turns(175);
+                .play_turns( 175 );
 
         then().game_has_finished();
     }

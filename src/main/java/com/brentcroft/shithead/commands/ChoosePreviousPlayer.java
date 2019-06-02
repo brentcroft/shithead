@@ -28,9 +28,9 @@ public class ChoosePreviousPlayer implements Command< GameContext >
 
         gameModel.setCurrentPlayer( player );
 
-        if (Objects.nonNull(notifier))
+        if ( Objects.nonNull( notifier ) )
         {
-            notifier.notifyAction(player, "goes again", "");
+            notifier.notifyAction( player, "goes again", "" );
         }
     }
 }

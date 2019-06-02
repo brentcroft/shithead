@@ -1,9 +1,6 @@
 package com.brentcroft.shithead.commands;
 
 
-import static com.brentcroft.shithead.context.Messages.DISCARD_NOT_IN_BLIND;
-import static com.brentcroft.shithead.context.Messages.DISCARD_NOT_IN_FACEUP;
-
 import org.springframework.stereotype.Component;
 
 import com.brentcroft.shithead.chain.Command;
@@ -22,35 +19,8 @@ public class PlayerElectsFaceupCards implements Command< DiscardContext >
     }
 
 
-    // TODO: get the rules right
     void electFaceupCards( Player player, Discard discard )
     {
-        if ( player.hasCardsInHand() )
-        {
-            // ok
-        }
-        else if ( player.hasCardsInFaceUp() )
-        {
-            if ( player.hasCards( Player.ROW.FACEUP, discard.getCards() ) )
-            {
-                player.electCards( discard.getCards() );
-            }
-            else
-            {
-                throw new RuntimeException( DISCARD_NOT_IN_FACEUP);
-            }
-        }
-        else
-        {
-            if ( player.hasCards( Player.ROW.BLIND, discard.getCards() ) )
-            {
-                player.electCards( discard.getCards() );
-            }
-            else
-            {
-                throw new RuntimeException( DISCARD_NOT_IN_BLIND );
-            }
-        }
-
+        player.electCards( discard.getCards() );
     }
 }

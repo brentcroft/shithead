@@ -20,17 +20,18 @@ public class Discard
     public Discard( String playerName, String cardsText )
     {
         this.playerName = playerName;
-        this.cards = CardList.of(cardsText);
+        this.cards = CardList.of( cardsText );
     }
 
-    public boolean rolloverOnPickup() {
+    public boolean rolloverOnPickup()
+    {
         return true;
     }
 
-    public void debacinate(CardList realCards)
+    public void debacinate( CardList realCards )
     {
-        CardList newCards = Cards.debacinate(getCards(), realCards);
+        CardList newCards = Cards.debacinate( getCards(), realCards );
         cards.clear();
-        cards.addAll( newCards);
+        cards.addAll( newCards );
     }
 }

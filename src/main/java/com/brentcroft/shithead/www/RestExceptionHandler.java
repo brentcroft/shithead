@@ -17,7 +17,8 @@ import java.util.Objects;
 @ControllerAdvice
 @Slf4j
 public class RestExceptionHandler
-        extends ResponseEntityExceptionHandler {
+        extends ResponseEntityExceptionHandler
+{
 
     @Getter
     @Setter
@@ -27,26 +28,26 @@ public class RestExceptionHandler
         String message;
         ExceptionResponse cause;
 
-        ExceptionResponse(Throwable e)
+        ExceptionResponse( Throwable e )
         {
             type = e.getClass().getSimpleName();
             message = e.getMessage();
-            if (Objects.nonNull(e.getCause()) )
+            if ( Objects.nonNull( e.getCause() ) )
             {
-                cause = new ExceptionResponse(e.getCause());
+                cause = new ExceptionResponse( e.getCause() );
             }
         }
     }
 
 
-    @ExceptionHandler(value = { Exception.class})
-    protected ResponseEntity<Object> handleConflict( Exception e, WebRequest request)
+    @ExceptionHandler( value = { Exception.class } )
+    protected ResponseEntity< Object > handleConflict( Exception e, WebRequest request )
     {
-        String responseText = "{ \"error\": " + JSONRenderer.render(new ExceptionResponse(e)) + " }";
+        String responseText = "{ \"error\": " + JSONRenderer.render( new ExceptionResponse( e ) ) + " }";
 
-        log.warn("Error response: " + responseText);
+        log.warn( "Error response: " + responseText );
 
-        return handleExceptionInternal( e, responseText, new HttpHeaders(), HttpStatus.CONFLICT, request);
+        return handleExceptionInternal( e, responseText, new HttpHeaders(), HttpStatus.CONFLICT, request );
     }
 
 

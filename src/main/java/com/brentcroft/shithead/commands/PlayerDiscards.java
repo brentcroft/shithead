@@ -38,9 +38,9 @@ public class PlayerDiscards implements Command< DiscardContext >
                     }
                 } );
 
-        if (Objects.nonNull(notifier))
+        if ( Objects.nonNull( notifier ) )
         {
-            notifier.notifyAction(player, "discards", discard.getCards());
+            notifier.notifyAction( player, "discards", discard.getCards() );
         }
     }
 }

@@ -28,59 +28,67 @@ public class Rules
     }
 
     /*
-        can the card be played on the stack
+     * can the card be played on the stack
      */
     public static final BiFunction< Stack< Card >, Card, Boolean > STACK_CARD_SELECTOR = (
             stack, card ) -> isWildcard( card )
-                            || stack.isEmpty()
-                            || card.getValue() >= stack.peek().getValue();
+                    || stack.isEmpty()
+                    || card.getValue() >= stack.peek().getValue();
 
-//    public static final BiFunction< Card, Card, Integer > CARD_COMPARATOR = (
-//            card1, card2 ) -> Integer.compare(card1.getValue(), card2.getValue());
+    // public static final BiFunction< Card, Card, Integer > CARD_COMPARATOR = (
+    // card1, card2 ) -> Integer.compare(card1.getValue(), card2.getValue());
 
 
-    public static int discardValue(Card card){
-        switch(card.getValue())
+    public static int discardValue( Card card )
+    {
+        switch ( card.getValue() )
         {
             case 10:
                 return Integer.MAX_VALUE;
 
             default:
-                return card.getValue() + ( Rules.isWildcard(card)  ?  Rules.SUIT_SIZE : 0 );
+                return card.getValue() + ( Rules.isWildcard( card ) ? Rules.SUIT_SIZE : 0 );
         }
     }
 
-    public static final Comparator<? super Card> CARD_COMPARATOR = (Comparator<Card>) (
-            card1, card2 ) -> Integer.compare(discardValue(card1), discardValue(card2));
+    public static final Comparator< ? super Card > CARD_COMPARATOR = (Comparator< Card >) (
+            card1, card2 ) -> Integer.compare( discardValue( card1 ), discardValue( card2 ) );
 
 
 
-
-
-    public static int getTextValue( String text)
+    public static int getTextValue( String text )
     {
-        switch (text)
+        switch ( text )
         {
-            case "?": return 0;
-            case "A": return 14;
-            case "K": return 13;
-            case "Q": return 12;
-            case "J": return 11;
+            case "?":
+                return 0;
+            case "A":
+                return 14;
+            case "K":
+                return 13;
+            case "Q":
+                return 12;
+            case "J":
+                return 11;
 
             default:
-                return Integer.valueOf(text.trim());
+                return Integer.valueOf( text.trim() );
         }
     }
 
 
-    public static String getValueText(Card card)
+    public static String getValueText( Card card )
     {
-        switch (card.getValue())
+        switch ( card.getValue() )
         {
-            case 14: return "A";
-            case 13: return  "K";
-            case 12: return "Q";
-            case 11 : return "J";
+            case 14:
+                return "A";
+            case 13:
+                return "K";
+            case 12:
+                return "Q";
+            case 11:
+                return "J";
             default:
                 return card.getValue() < 0 ? "?" : "" + card.getValue();
         }
@@ -99,34 +107,44 @@ public class Rules
     {
         switch ( text )
         {
-            case BLIND: return BLIND_SUIT;
+            case BLIND:
+                return BLIND_SUIT;
 
-            case SPADES: return 0;
+            case SPADES:
+                return 0;
 
-            case DIAMONDS: return 1;
+            case DIAMONDS:
+                return 1;
 
-            case CLUBS: return 2;
+            case CLUBS:
+                return 2;
 
-            case HEARTS: return 3;
+            case HEARTS:
+                return 3;
 
             default:
                 throw new RuntimeException( "Invalid suit: " + text );
         }
     }
 
-    public static char getSuitText(Card card)
+    public static char getSuitText( Card card )
     {
         switch ( card.getSuit() )
         {
-            case 0: return SPADES;
-            case 1: return DIAMONDS;
-            case 2: return CLUBS;
-            case 3: return HEARTS;
+            case 0:
+                return SPADES;
+            case 1:
+                return DIAMONDS;
+            case 2:
+                return CLUBS;
+            case 3:
+                return HEARTS;
 
-            case BLIND_SUIT: return BLIND;
+            case BLIND_SUIT:
+                return BLIND;
 
             default:
-                throw new RuntimeException( format("Invalid suit: %s", card.getSuit() ) );
+                throw new RuntimeException( format( "Invalid suit: %s", card.getSuit() ) );
         }
     }
 }

@@ -50,10 +50,10 @@ public class ChooseNextPlayer implements Command< GameContext >
 
         gameModel.setCurrentPlayer( currentPlayer[ 0 ] );
 
-        if (Objects.nonNull(notifier))
+        if ( Objects.nonNull( notifier ) )
         {
-            //String cpJson = JSONRenderer.render(currentPlayer[0]);
-            notifier.notifyAction(currentPlayer[0], "is the next player", "");
+            // String cpJson = JSONRenderer.render(currentPlayer[0]);
+            notifier.notifyAction( currentPlayer[ 0 ], "is the next player", "" );
         }
     }
 }

@@ -11,7 +11,7 @@ import org.junit.Test;
 public class PlayerTest extends ScenarioTest< GivenSomeState, WhenSomeAction, ThenSomeOutcome >
 {
     /*
-        3♡, 10♣, 9♢
+     * 3♡, 10♣, 9♢
      */
 
     @Test( )
@@ -28,6 +28,6 @@ public class PlayerTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Th
 
         when().next_player().selects_cards();
 
-        then().the_discard_contains("[ K♢ ]");
+        then().the_discard_contains( "[ K♢ ]" );
     }
 }

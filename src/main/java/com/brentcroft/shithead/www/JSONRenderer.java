@@ -20,18 +20,17 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 public class JSONRenderer
 {
 
-    public static String render(Object game )
+    public static String render( Object game )
     {
         ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule(
-                "GameSerializer",
-                new Version( 1, 0, 0, null, null, null ) );
+        
+        SimpleModule module = new SimpleModule( "GameSerializer", new Version( 1, 0, 0, null, null, null ) );
+        
         module.addSerializer( GameModel.class, new GameSerializer() );
         module.addSerializer( Player.class, new PlayerSerializer() );
         module.addSerializer( Card.class, new CardSerializer() );
 
-        //
-        objectMapper.setDefaultPrettyPrinter(new DefaultPrettyPrinter());
+        objectMapper.setDefaultPrettyPrinter( new DefaultPrettyPrinter() );
 
         objectMapper.registerModule( module );
         try
@@ -96,15 +95,15 @@ public class JSONRenderer
             jsonGenerator.writeObjectField( "deck", gameModel.getDeck() );
             jsonGenerator.writeObjectField( "stack", gameModel.getStack() );
 
-            jsonGenerator.writeNumberField("turnNo", gameModel.getTurnNo() );
+            jsonGenerator.writeNumberField( "turnNo", gameModel.getTurnNo() );
 
-            if (Objects.nonNull(gameModel.getCurrentPlayer()))
+            if ( Objects.nonNull( gameModel.getCurrentPlayer() ) )
             {
-                jsonGenerator.writeStringField("nextPlayer", gameModel.getCurrentPlayer().getName());
+                jsonGenerator.writeStringField( "nextPlayer", gameModel.getCurrentPlayer().getName() );
             }
-            if ( !gameModel.getLastPlayer().isEmpty())
+            if ( !gameModel.getLastPlayer().isEmpty() )
             {
-                jsonGenerator.writeStringField("lastPlayer", gameModel.getLastPlayer().peek().getName());
+                jsonGenerator.writeStringField( "lastPlayer", gameModel.getLastPlayer().peek().getName() );
             }
 
             jsonGenerator.writeArrayFieldStart( "players" );

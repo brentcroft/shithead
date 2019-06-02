@@ -7,6 +7,7 @@ import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_NO_CARDS;
 import static java.lang.String.format;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.brentcroft.shithead.chain.Command;
 import com.brentcroft.shithead.context.DiscardContext;
@@ -32,21 +33,43 @@ public class CheckPlayerCards implements Command< DiscardContext >
         {
             throw new RuntimeException( format( INVALID_PLAY_CARDS_OF_DIFFERENT_VALUES, player, cards ) );
         }
-        // TODO:
-        // tally of the cards against the hand
-        // any remainder must be in faceup else invalid play
-        else if ( player.hasCardsInHand() )
+        
+        CardList remainder = cards;
+        int remainderSize = remainder.size();
+        
+        if ( player.hasCardsInHand() )
         {
-            if ( !player.hasCards( Player.ROW.HAND, cards ) )
+            CardList handCards = player.getHandCards();
+            
+            // any cards remaining not in hand?
+            remainder = CardList.of( remainder
+                .stream()
+                .filter( c-> !handCards.contains( c ) )
+                .collect( Collectors.toList() ) );
+                
+            if (!remainder.isEmpty() && (remainderSize - remainder.size()) != handCards.size())
             {
-                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_HAND, cards, player, player.getHandCards() ) );
+                throw new RuntimeException(
+                        format( INVALID_PLAY_CARDS_NOT_IN_HAND, cards, player, player.getHandCards() ) );
             }
         }
-        else if ( player.hasCardsInFaceUp() )
+        
+        if ( player.hasCardsInFaceUp() )
         {
-            if ( !player.hasCards( Player.ROW.FACEUP, cards ) )
+            CardList faceupCards = player.getFaceUpCards();
+            
+            remainderSize = remainder.size();
+            
+            // any cards remaining not in hand?
+            remainder = CardList.of( remainder
+                .stream()
+                .filter( c-> !faceupCards.contains( c ) )
+                .collect( Collectors.toList() ) );            
+            
+            
+            if (!remainder.isEmpty() && (remainderSize - remainder.size()) != faceupCards.size())
             {
-                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_FACEUP, player, cards ) );
+                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_FACEUP, cards, player, player.getFaceUpCards() ) );
             }
         }
     }

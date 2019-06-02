@@ -5,9 +5,8 @@ import static com.brentcroft.shithead.model.Rules.CARD_COMPARATOR;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
-import java.util.*;
+import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,7 @@ public class Player
         return format( "%s", name );
     }
 
-    public static String joinCards(CardList cards)
+    public static String joinCards( CardList cards )
     {
         return "[ " + cards.stream().map( Object::toString ).collect( joining( ", " ) ) + " ]";
     }
@@ -51,14 +50,14 @@ public class Player
     public String cardsText()
     {
         return format( "h=%-10s f=%-10s b=%-10s",
-                joinCards(handCards ),
-                joinCards(faceUpCards ),
-                joinCards(blindCards ) );
+                joinCards( handCards ),
+                joinCards( faceUpCards ),
+                joinCards( blindCards ) );
     }
 
 
 
-    private CardList getCards( ROW row )
+    public CardList getCards( ROW row )
     {
         switch ( row )
         {
@@ -92,7 +91,7 @@ public class Player
     {
         return getCards( row )
                 .stream()
-                .anyMatch(c -> c.getValue() == value );
+                .anyMatch( c -> c.getValue() == value );
 
     }
 
@@ -100,7 +99,7 @@ public class Player
     {
         return cards
                 .stream()
-                .anyMatch( card->hasCard(row, card.getValue() ) );
+                .anyMatch( card -> hasCard( row, card.getValue() ) );
     }
 
 
@@ -118,10 +117,10 @@ public class Player
     {
         return handCards
                 .remove( handCards
-                    .stream()
-                    .filter(c->c.equals(card))
-                    .findFirst()
-                    .orElse(null) );
+                        .stream()
+                        .filter( c -> c.equals( card ) )
+                        .findFirst()
+                        .orElse( null ) );
     }
 
     public boolean hasCardsInHand()
@@ -147,7 +146,7 @@ public class Player
 
 
 
-    public CardList chooseValidCards( Predicate<Card> selector )
+    public CardList chooseValidCards( Predicate< Card > selector )
     {
         ROW currentRow = currentRow();
 
@@ -159,18 +158,18 @@ public class Player
         switch ( currentRow )
         {
             case BLIND:
-                return CardList.of(getCards(currentRow).get(0));
+                return CardList.of( getCards( currentRow ).get( 0 ) );
 
             default:
-                return  CardList.of( getCards( currentRow )
+                return CardList.of( getCards( currentRow )
                         .stream()
                         .filter( selector )
-                        .sorted(CARD_COMPARATOR)
+                        .sorted( CARD_COMPARATOR )
                         .collect( Collectors.toList() ) );
         }
     }
 
-    public CardList chooseAnyCards( )
+    public CardList chooseAnyCards()
     {
         ROW currentRow = currentRow();
 
@@ -182,72 +181,74 @@ public class Player
         switch ( currentRow )
         {
             case BLIND:
-                return CardList.of(getCards(currentRow).get(0));
+                return CardList.of( getCards( currentRow ).get( 0 ) );
 
             default:
-                return  CardList.of( getCards( currentRow )
+                return CardList.of( getCards( currentRow )
                         .stream()
-                        .sorted(CARD_COMPARATOR)
+                        .sorted( CARD_COMPARATOR )
                         .collect( Collectors.toList() ) );
         }
     }
 
 
-    public Discard getDiscard(Predicate<Card> selector) {
+    public Discard getDiscard( Predicate< Card > selector )
+    {
         // valid discards
         CardList cards = chooseValidCards( selector );
 
-        if ( cards.size() == 0)
+        if ( cards.size() == 0 )
         {
             // invalid discards
             cards = chooseAnyCards();
         }
 
-        int value = cards.get(0).getValue();
+        int value = cards.get( 0 ).getValue();
 
         // TODO: control over multiplicity
         return new Discard(
                 getName(),
                 CardList.of(
                         cards
-                            .stream()
-                            .filter(card -> card.getValue() == value)
-                            .collect(Collectors.toList())));
+                                .stream()
+                                .filter( card -> card.getValue() == value )
+                                .collect( Collectors.toList() ) ) );
     }
 
 
 
     public void electCards( CardList cards )
     {
-        ROW currentRow = currentRow();
-
-        CardList choices = getCards( currentRow );
-
+        ROW currentRow = faceUpCards.isEmpty() ? ROW.BLIND : ROW.FACEUP;
+        CardList choices = faceUpCards.isEmpty() ? blindCards : faceUpCards;
+        
         cards
                 .forEach( card -> {
-                    if ( choices.remove( choices
+                    if (handCards.contains( card ))
+                    {
+                        //
+                    }
+                    else if ( choices.remove( choices
                             .stream()
-                            .filter(c->c.equals(card))
+                            .filter( c -> c.equals( card ) )
                             .findFirst()
-                            .orElse(null) ) )
+                            .orElse( null ) ) )
                     {
                         handCards.add( card );
                     }
                     else
                     {
-                        throw new RuntimeException( format(CARD_NOT_IN_CURRENT_ROW, card,  currentRow ) );
+                        throw new RuntimeException( format( CARD_NOT_IN_CURRENT_ROW, card, currentRow ) );
                     }
                 } );
     }
 
 
 
-
-
     /*
-        how valuable is the card - I suppose depends on context
-    */
-    public static int cardScore(Card card)
+     * how valuable is the card - I suppose depends on context
+     */
+    public static int cardScore( Card card )
     {
         int BASE_SCORE = 14;
 

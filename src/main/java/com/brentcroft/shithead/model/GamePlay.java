@@ -21,7 +21,7 @@ public interface GamePlay
             .build();
 
     // TODO: players can swap hand and faceup cards
-    
+
     Chain< GameContext > FIRST_PLAYER = Chain.of( GameContext.class )
             .firstDo( new DetectFirstPlayer() )
             .build();

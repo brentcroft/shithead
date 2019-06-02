@@ -17,20 +17,21 @@ public class Card
         this.suit = suit;
     }
 
-    public boolean equals(Object obj)
+    public boolean equals( Object obj )
     {
-        if ( obj instanceof Card) {
-            Card card = (Card)obj;
+        if ( obj instanceof Card )
+        {
+            Card card = (Card) obj;
             return card.getValue() == value && card.getSuit() == suit;
         }
         else
         {
-            return super.equals(obj);
+            return super.equals( obj );
         }
     }
 
     public String toString()
     {
-        return format( "%s%s", Rules.getValueText(this), Rules.getSuitText(this) );
+        return format( "%s%s", Rules.getValueText( this ), Rules.getSuitText( this ) );
     }
 }

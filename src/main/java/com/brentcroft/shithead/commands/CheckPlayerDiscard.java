@@ -31,7 +31,8 @@ public class CheckPlayerDiscard implements Command< DiscardContext >
         {
             return false;
         }
-        else if ( ( player.hasCardsInHand() || player.hasCardsInFaceUp() ) && !gameModel.getSelector().test( cards.get( 0 ) ) )
+        else if ( ( player.hasCardsInHand() || player.hasCardsInFaceUp() )
+                && !gameModel.getSelector().test( cards.get( 0 ) ) )
         {
             verifyPlayerCannotPlay( gameModel, player, cards );
 
@@ -42,9 +43,9 @@ public class CheckPlayerDiscard implements Command< DiscardContext >
 
     void verifyPlayerCannotPlay( GameModel gameModel, Player player, List< Card > cards )
     {
-        CardList choices = player.chooseValidCards(gameModel.getSelector());
+        CardList choices = player.chooseValidCards( gameModel.getSelector() );
 
-        if ( choices != null && !choices.isEmpty() && ! choices.containsAll(cards))
+        if ( choices != null && !choices.isEmpty() && !choices.containsAll( cards ) )
         {
             throw new RuntimeException( format( PLAYER_COULD_HAVE_PLAYED, player, choices ) );
         }

@@ -33,9 +33,9 @@ public class MaybeRemoveFinishedPlayer implements Command< PlayerContext >
 
             gameModel.getLastPlayer().pop();
 
-            if (Objects.nonNull(notifier))
+            if ( Objects.nonNull( notifier ) )
             {
-                notifier.notifyAction(player, "has finished", gameModel.getPlayers().size());
+                notifier.notifyAction( player, "has finished", gameModel.getPlayers().size() );
             }
         }
     }

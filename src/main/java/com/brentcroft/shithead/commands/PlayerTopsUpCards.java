@@ -25,14 +25,14 @@ public class PlayerTopsUpCards implements Command< DiscardContext >
     @Override
     public void action( DiscardContext context )
     {
-        playerTopsUpCards( context);
+        playerTopsUpCards( context );
     }
 
-    void playerTopsUpCards( DiscardContext context  )
+    void playerTopsUpCards( DiscardContext context )
     {
         GameModel gameModel = context.getGameModel();
         Player player = context.getPlayer();
-        Discard discard  = context.getDiscard();
+        Discard discard = context.getDiscard();
 
 
 
@@ -46,23 +46,23 @@ public class PlayerTopsUpCards implements Command< DiscardContext >
                     && card.getValue() == gameModel.getStack().peek().getValue() )
             {
 
-                if (Objects.nonNull(notifier))
+                if ( Objects.nonNull( notifier ) )
                 {
-                    notifier.notifyAction(player, "slides", card);
+                    notifier.notifyAction( player, "slides", card );
                 }
 
                 gameModel.getStack().push( card );
 
-                mcts.action(context);
+                mcts.action( context );
 
                 continue;
             }
 
             player.addCard( Player.ROW.HAND, card );
 
-            if (Objects.nonNull(notifier))
+            if ( Objects.nonNull( notifier ) )
             {
-                notifier.notifyAction(player, "tops up", card);
+                notifier.notifyAction( player, "tops up", card );
             }
         }
     }

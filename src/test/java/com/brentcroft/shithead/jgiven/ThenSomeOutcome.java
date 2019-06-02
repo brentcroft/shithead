@@ -105,6 +105,10 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         return self();
     }
 
+    public ThenSomeOutcome the_stack_has_cards( String cardText) {
+        assertEquals( CardList.of(cardText),  CardList.of(game.getGameModel().getStack()) );
+        return self();
+    }
 
     public ThenSomeOutcome exception_with_message(String message)
     {
@@ -127,6 +131,17 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         return self();
     }
 
+
+    public ThenSomeOutcome exception_with_message_cards_row(String message, String cardText, Player.ROW row) {
+
+        assertNotNull( actionException );
+        assertEquals(
+                format( message, cardText, player, player.getCards(row) ),
+                actionException.getMessage() );
+
+        return self();
+    }
+
     public ThenSomeOutcome the_discard_contains(String cardText) {
         assertNotNull( play );
 
@@ -142,11 +157,18 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         if ( !game.getGameModel().isFinished() )
         {
             System.out.println("GAME NOT FINISHED: " + JSONRenderer.render(game.getGameModel()));
+            System.out.flush();
         }
 
         assertTrue( game.getGameModel().isFinished());
 
         return self();
 
+    }
+
+    public ThenSomeOutcome no_exception()
+    {
+        assertNull( actionException );
+        return self();
     }
 }

@@ -24,7 +24,7 @@ public class Cards
         cardIds.forEach( cardId -> cards.push( newCard( cardId ) ) );
     }
 
-    public Cards( )
+    public Cards()
     {
         this( IntStream
                 .range( 0, NUM_CARDS )
@@ -32,11 +32,13 @@ public class Cards
                 .collect( Collectors.toList() ) );
     }
 
-    public void shuffle() {
+    public void shuffle()
+    {
         ;
     }
 
-    public int size() {
+    public int size()
+    {
         return cards.size();
     }
 
@@ -46,43 +48,46 @@ public class Cards
     {
         return new Card(
                 i < 0 ? -1 : Rules.LOWEST_CARD_VALUE + ( i % Rules.SUIT_SIZE ),
-                i < 0 ? -1 : i / Rules.SUIT_SIZE
-        );
+                i < 0 ? -1 : i / Rules.SUIT_SIZE );
     }
 
 
 
-    public static CardList abacinate(CardList blindCards) {
-        int[] index = {0};
-        return CardList.of(blindCards
+    public static CardList abacinate( CardList blindCards )
+    {
+        int[] index = { 0 };
+        return CardList.of( blindCards
                 .stream()
-                .map(b-> new Card( index[0]++, BLIND_SUIT))
-                .collect(Collectors.toList()));
+                .map( b -> new Card( index[ 0 ]++, BLIND_SUIT ) )
+                .collect( Collectors.toList() ) );
     }
 
-    public static CardList debacinate(CardList cards, CardList blindCards) {
-        return CardList.of(cards
+    public static CardList debacinate( CardList cards, CardList blindCards )
+    {
+        return CardList.of( cards
                 .stream()
-                .map(b-> b.getSuit() == BLIND_SUIT ? blindCards.get(b.getValue() ) : b )
-                .collect(Collectors.toList()));
+                .map( b -> b.getSuit() == BLIND_SUIT ? blindCards.get( b.getValue() ) : b )
+                .collect( Collectors.toList() ) );
     }
 
 
 
-    private static Card blindCard(Card card) {
-        return newCard(-1);
+    private static Card blindCard( Card card )
+    {
+        return newCard( -1 );
     }
 
-    public static Card getCard(String ct) {
-        switch (ct.length())
+    public static Card getCard( String ct )
+    {
+        switch ( ct.length() )
         {
             case 3:
-                return new Card( Rules.getTextValue( ct.substring(0,2)), Rules.getTextSuit( ct.charAt(2)));
+                return new Card( Rules.getTextValue( ct.substring( 0, 2 ) ), Rules.getTextSuit( ct.charAt( 2 ) ) );
             case 2:
-                return new Card( Rules.getTextValue( ct.substring(0,1)), Rules.getTextSuit( ct.charAt(1)));
+                return new Card( Rules.getTextValue( ct.substring( 0, 1 ) ), Rules.getTextSuit( ct.charAt( 1 ) ) );
 
             default:
-                throw new RuntimeException("Invalid card text: " + ct);
+                throw new RuntimeException( "Invalid card text: " + ct );
         }
     }
 
