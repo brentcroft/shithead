@@ -20,6 +20,7 @@ public class PlayTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
 
 
     @Test( )
+    @Ignore
     public void play()
     {
         given()
