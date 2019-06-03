@@ -15,7 +15,6 @@ import lombok.Getter;
 @Getter
 public class Player
 {
-
     public enum ROW
     {
         BLIND, FACEUP, HAND;
@@ -132,6 +131,11 @@ public class Player
     {
         return !faceUpCards.isEmpty();
     }
+
+    public boolean hasCardsInBlind() {
+        return !blindCards.isEmpty();
+    }
+
 
     public ROW currentRow()
     {

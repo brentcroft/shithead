@@ -31,14 +31,17 @@ public class CheckPlayerDiscard implements Command< DiscardContext >
         {
             return false;
         }
-        else if ( ( player.hasCardsInHand() || player.hasCardsInFaceUp() )
-                && !gameModel.getSelector().test( cards.get( 0 ) ) )
+        else if ( gameModel.getSelector().test( cards.get( 0 ) ) )
+        {
+            return true;
+        }
+
+        if ( player.hasCardsInHand() || player.hasCardsInFaceUp() )
         {
             verifyPlayerCannotPlay( gameModel, player, cards );
-
-            return false;
         }
-        return true;
+
+        return false;
     }
 
     void verifyPlayerCannotPlay( GameModel gameModel, Player player, List< Card > cards )

@@ -15,13 +15,18 @@ public class CardList extends ArrayList< Card >
     {
         CardList cl = new CardList();
         cl.addAll( cards );
-        cl.sort( CARD_COMPARATOR );
-        return cl;
+        return cl.sorted();
     }
 
     public static CardList of( Card... cards )
     {
         return of( Arrays.asList( cards ) );
+    }
+
+    public CardList sorted()
+    {
+        sort( CARD_COMPARATOR );
+        return this;
     }
 
     public static CardList of( String text )
@@ -52,7 +57,7 @@ public class CardList extends ArrayList< Card >
 
     public String toString()
     {
-        return toText( this );
+        return toText( sorted() );
     }
 
     public static String toText( List< Card > cards )

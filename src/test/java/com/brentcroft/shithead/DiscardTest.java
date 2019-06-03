@@ -1,6 +1,7 @@
 package com.brentcroft.shithead;
 
 import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_CARDS_NOT_IN_HAND;
+import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_ONE_BLIND_CARD_ONLY;
 import static com.brentcroft.shithead.context.Messages.PLAYER_COULD_HAVE_PLAYED;
 import static java.lang.String.format;
 
@@ -29,7 +30,39 @@ public class DiscardTest extends ScenarioTest< GivenSomeState, WhenSomeAction, T
 
         when().next_player().plays_cards( "[ 5♣ ]" );
 
-        then().discard_exception_with_message_and_cards( PLAYER_COULD_HAVE_PLAYED, "[ 7♣, 2♣, 10♣ ]" );
+        then().exception_with_cards_player( PLAYER_COULD_HAVE_PLAYED, "[ 7♣, 2♣, 10♣ ]" );
+    }
+
+    @Test( )
+    public void invalid_blind_card_picks_up_stack()
+    {
+        given()
+                .a_dealt_3_player_game()
+                .first_player_detected()
+                .with_empty_hand_cards()
+                .with_empty_faceup_cards()
+                .with_blind_Cards("[ 5♣, 7♣, 10♣ ]" )
+                .with_stack_cards( "[ 6♣ ]" );
+
+        when().next_player().plays_cards( "[ 5♣ ]" );
+
+        then().the_stack_is_empty();
+    }
+
+    @Test( )
+    public void exception_on_multiple_blind_cards()
+    {
+        given()
+                .a_dealt_3_player_game()
+                .first_player_detected()
+                .with_empty_hand_cards()
+                .with_empty_faceup_cards()
+                .with_blind_Cards("[ 7♡, 7♣, 10♣ ]" )
+                .with_stack_cards( "[ 6♣ ]" );
+
+        when().next_player().plays_cards( "[ 7♡, 7♣ ]" );
+
+        then().exception_with_player(INVALID_PLAY_ONE_BLIND_CARD_ONLY);
     }
 
 
@@ -138,7 +171,7 @@ public class DiscardTest extends ScenarioTest< GivenSomeState, WhenSomeAction, T
                 .plays_cards( "[ 5♢, 5♠ ]" );
 
         then()
-                .exception_with_message_cards_row( INVALID_PLAY_CARDS_NOT_IN_HAND, "[ 5♢, 5♠ ]", Player.ROW.HAND )
+                .exception_with_cards_player_row( INVALID_PLAY_CARDS_NOT_IN_HAND, "[ 5♢, 5♠ ]", Player.ROW.HAND )
                 .the_stack_has_cards( "[ 5♡ ]" );
     }
 }

@@ -7,7 +7,7 @@ import com.brentcroft.shithead.jgiven.ThenSomeOutcome;
 import com.brentcroft.shithead.jgiven.WhenSomeAction;
 import com.tngtech.jgiven.junit.ScenarioTest;
 
-import static com.brentcroft.shithead.context.Messages.NOT_ENOUGH_PLAYERS;
+import static com.brentcroft.shithead.context.Messages.*;
 
 public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, ThenSomeOutcome >
 {
@@ -16,7 +16,7 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_new_game();
         when().deal_cards();
-        then().exception_with_message( NOT_ENOUGH_PLAYERS );
+        then().exception( NOT_ENOUGH_PLAYERS );
     }
 
     @Test( )
@@ -24,7 +24,7 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_new_game().with_min_players( 2 ).with_players( 1 );
         when().deal_cards();
-        then().exception_with_message( NOT_ENOUGH_PLAYERS );
+        then().exception( NOT_ENOUGH_PLAYERS );
     }
 
     @Test( )
@@ -32,7 +32,7 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_new_game().with_players( 6 );
         when().deal_cards();
-        then().no_more_cards_exception();
+        then().exception(NO_MORE_CARDS);
     }
 
     @Test
@@ -40,7 +40,7 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_dealt_3_player_game();
         when().deal_cards();
-        then().cards_already_dealt_exception();
+        then().exception(CARDS_ALREADY_DEALT);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_dealt_3_player_game();
         when().a_new_player_is_added();
-        then().cards_already_dealt_exception();
+        then().exception(CARDS_ALREADY_DEALT);
     }
 
     @Test( )
@@ -56,6 +56,6 @@ public class DealTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
     {
         given().a_new_game().with_players( 3 );
         when().next_player();
-        then().cards_not_dealt_exception();
+        then().exception(CARDS_NOT_DEALT);
     }
 }

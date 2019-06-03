@@ -18,7 +18,7 @@ public class StandardGameTest
     @Test
     public void gameFinishedWhenMinPlayersLeft()
     {
-        int minPlayers = 1;
+        int minPlayers = 2;
 
 
         StandardGame game = new StandardGame();
@@ -33,7 +33,7 @@ public class StandardGameTest
         game.detectFirstPlayer();
 
 
-        while ( minPlayers <= game.getGameModel().getPlayers().size() )
+        while ( !game.getGameModel().isFinished() )
         {
             int turn = game.getGameModel().getTurnNo();
 
@@ -52,6 +52,6 @@ public class StandardGameTest
         System.out.println( "MODEL: " + JSONRenderer.render( game.getGameModel() ) );
 
 
-        assertTrue( minPlayers > game.getGameModel().getPlayers().size() );
+        assertTrue( game.getGameModel().isFinished() );
     }
 }

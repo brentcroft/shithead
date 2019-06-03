@@ -1,9 +1,6 @@
 package com.brentcroft.shithead.commands;
 
-import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_CARDS_NOT_IN_FACEUP;
-import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_CARDS_NOT_IN_HAND;
-import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_CARDS_OF_DIFFERENT_VALUES;
-import static com.brentcroft.shithead.context.Messages.INVALID_PLAY_NO_CARDS;
+import static com.brentcroft.shithead.context.Messages.*;
 import static java.lang.String.format;
 
 import java.util.List;
@@ -50,11 +47,11 @@ public class CheckPlayerCards implements Command< DiscardContext >
             if (!remainder.isEmpty() && (remainderSize - remainder.size()) != handCards.size())
             {
                 throw new RuntimeException(
-                        format( INVALID_PLAY_CARDS_NOT_IN_HAND, cards, player, player.getHandCards() ) );
+                        format( INVALID_PLAY_CARDS_NOT_IN_HAND, cards, player, handCards ) );
             }
         }
-        
-        if ( player.hasCardsInFaceUp() )
+
+        if ( remainder.size() > 0 && player.hasCardsInFaceUp() )
         {
             CardList faceupCards = player.getFaceUpCards();
             
@@ -69,9 +66,37 @@ public class CheckPlayerCards implements Command< DiscardContext >
             
             if (!remainder.isEmpty() && (remainderSize - remainder.size()) != faceupCards.size())
             {
-                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_FACEUP, cards, player, player.getFaceUpCards() ) );
+                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_FACEUP, cards, player, faceupCards ) );
             }
         }
+
+        if ( remainder.size() > 0 && player.hasCardsInBlind() )
+        {
+            CardList blindCards = player.getBlindCards();
+
+            if ( remainder.size() != 1)
+            {
+                throw new RuntimeException( format( INVALID_PLAY_ONE_BLIND_CARD_ONLY, player ) );
+            }
+
+
+            remainderSize = remainder.size();
+
+            // any cards remaining not in hand?
+            remainder = CardList.of( remainder
+                    .stream()
+                    .filter( c-> !blindCards.contains( c ) )
+                    .collect( Collectors.toList() ) );
+
+
+            if (!remainder.isEmpty() && (remainderSize - remainder.size()) != blindCards.size())
+            {
+                throw new RuntimeException( format( INVALID_PLAY_CARDS_NOT_IN_BLIND, cards, player, blindCards ) );
+            }
+        }
+
+
+
     }
 
     boolean cardsAllSameValue( List< Card > cards )

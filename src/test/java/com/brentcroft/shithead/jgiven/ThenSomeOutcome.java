@@ -32,63 +32,6 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
     Discard play;
 
 
-    public ThenSomeOutcome cards_already_dealt_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals( Messages.CARDS_ALREADY_DEALT, actionException.getMessage() );
-
-        return self();
-    }
-
-    public ThenSomeOutcome not_enough_players_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals( NOT_ENOUGH_PLAYERS, actionException.getMessage() );
-
-        return self();
-    }
-
-    public ThenSomeOutcome no_more_cards_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals( NO_MORE_CARDS, actionException.getMessage() );
-
-        return self();
-    }
-
-    public ThenSomeOutcome not_your_turn_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals(
-                format(
-                        Messages.NOT_YOUR_TURN,
-                        player ),
-                actionException.getMessage() );
-
-        return self();
-    }
-
-    public ThenSomeOutcome invalid_play_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals(
-                format(
-                        Messages.INVALID_PLAY_CARDS_NOT_IN_HAND,
-                        player,
-                        play.getCards() ),
-                actionException.getMessage() );
-
-        return self();
-    }
-
-    public ThenSomeOutcome cards_not_dealt_exception()
-    {
-        assertNotNull( actionException );
-        assertEquals( Messages.CARDS_NOT_DEALT, actionException.getMessage() );
-
-        return self();
-    }
-
     public ThenSomeOutcome the_stack_is_empty()
     {
         assertTrue( game.getGameModel().getStack().isEmpty() );
@@ -110,37 +53,8 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
         return self();
     }
 
-    public ThenSomeOutcome exception_with_message(String message)
-    {
-        assertNotNull( actionException );
-        assertEquals( message, actionException.getMessage() );
-        return self();
-    }
 
 
-    public ThenSomeOutcome discard_exception_with_message_and_cards(String message, String cardText) {
-
-        assertNotNull( actionException );
-        assertEquals(
-                format(
-                        message,
-                        player,
-                        cardText ),
-                actionException.getMessage() );
-
-        return self();
-    }
-
-
-    public ThenSomeOutcome exception_with_message_cards_row(String message, String cardText, Player.ROW row) {
-
-        assertNotNull( actionException );
-        assertEquals(
-                format( message, cardText, player, player.getCards(row) ),
-                actionException.getMessage() );
-
-        return self();
-    }
 
     public ThenSomeOutcome the_discard_contains(String cardText) {
         assertNotNull( play );
@@ -154,21 +68,61 @@ public class ThenSomeOutcome extends Stage< ThenSomeOutcome >
 
     public ThenSomeOutcome game_has_finished() {
 
-        if ( !game.getGameModel().isFinished() )
-        {
-            System.out.println("GAME NOT FINISHED: " + JSONRenderer.render(game.getGameModel()));
-            System.out.flush();
-        }
+        System.out.println( format("GAME FINISHED [%s]: %s", game.getGameModel().isFinished(), JSONRenderer.render(game.getGameModel())));
+        System.out.flush();
 
         assertTrue( game.getGameModel().isFinished());
 
         return self();
-
     }
+
 
     public ThenSomeOutcome no_exception()
     {
         assertNull( actionException );
         return self();
     }
+
+    public ThenSomeOutcome exception(String message)
+    {
+        assertNotNull( actionException );
+        assertEquals( message, actionException.getMessage() );
+        return self();
+    }
+
+    public ThenSomeOutcome exception_with_player(String message)
+    {
+        assertNotNull( actionException );
+        assertEquals(
+                format(
+                        message,
+                        player ),
+                actionException.getMessage() );
+        return self();
+    }
+
+    public ThenSomeOutcome exception_with_cards_player(String message, String cardText) {
+
+        assertNotNull( actionException );
+        assertEquals(
+                format(
+                        message,
+                        player,
+                        cardText ),
+                actionException.getMessage() );
+
+        return self();
+    }
+
+    public ThenSomeOutcome exception_with_cards_player_row(String message, String cardText, Player.ROW row) {
+
+        assertNotNull( actionException );
+        assertEquals(
+                format( message, cardText, player, player.getCards(row) ),
+                actionException.getMessage() );
+
+        return self();
+    }
+
+
 }

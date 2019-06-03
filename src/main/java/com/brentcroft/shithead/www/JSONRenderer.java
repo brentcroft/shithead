@@ -147,8 +147,8 @@ public class JSONRenderer
         {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField( "name", player.getName() );
-            jsonGenerator.writeObjectField( "hand", player.getHandCards() );
-            jsonGenerator.writeObjectField( "faceup", player.getFaceUpCards() );
+            jsonGenerator.writeObjectField( "hand", player.getHandCards().sorted() );
+            jsonGenerator.writeObjectField( "faceup", player.getFaceUpCards().sorted() );
             jsonGenerator.writeObjectField( "blind", Cards.abacinate( player.getBlindCards() ) );
             jsonGenerator.writeEndObject();
         }

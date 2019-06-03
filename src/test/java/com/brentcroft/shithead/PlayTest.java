@@ -18,17 +18,18 @@ public class PlayTest extends ScenarioTest< GivenSomeState, WhenSomeAction, Then
      * 3♡, 10♣, 9♢
      */
 
-
     @Test( )
-    @Ignore
-    public void play()
+    public void game_with_3_players_and_min_2_has_56_turns()
     {
         given()
-                .a_dealt_3_player_game()
+                .a_new_game()
+                .with_min_players(2)
+                .with_players(3)
+                .cards_are_dealt()
                 .first_player_detected();
 
         when()
-                .play_turns( 175 );
+                .play_turns( 100 );
 
         then().game_has_finished();
     }
